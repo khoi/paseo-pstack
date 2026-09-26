@@ -39,7 +39,7 @@ Launch all reviewers in a single message using Paseo `create_agent`. Use the pst
 |----------|---------------|
 | Reviewer A | `claude/claude-opus-5-5` max |
 | Reviewer B | `codex/gpt-6-astra` max |
-| Reviewer C | `codex/gpt-6-sol` xhigh fast |
+| Reviewer C | `codex/gpt-6-sol` xhigh |
 
 For each reviewer:
 - profile: the configured `interrogate reviewers` entry (`provider/model`, `thinkingOptionId`, `modeId`, features), or the table default with no pstack profiles. For an `inherit-parent` entry (no pstack profile names the role once pstack profiles exist), launch on your own provider and model so that reviewer runs on the parent model.

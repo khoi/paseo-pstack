@@ -80,7 +80,7 @@ Aim for a complete **coverage map**, not a minimal one. Document the null, don't
 Launch all matching investigators in a single message so they run concurrently. Don't ask one agent to cover multiple MCPs.
 
 Subagent config (each):
-- profile: the `why investigators` role, default `codex/gpt-6-sol` xhigh fast
+- profile: the `why investigators` role, default `codex/gpt-6-sol` xhigh
 - mode: the profile's mode. **Do not use a read-only or plan mode.** It strips MCP access, which disables MCP-backed investigators entirely. Investigators still shouldn't write anything.
 
 Each investigator gets:

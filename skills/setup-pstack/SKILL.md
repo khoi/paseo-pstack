@@ -12,7 +12,7 @@ Write pstack's per-role model choices as Paseo **Agent profiles** (`daemon.agent
 
 ### 1. Detect available models
 
-Call the Paseo `list_providers` tool, then `list_models` for `claude` and `codex`. pstack supports these two providers natively. That is the dependable source. Record each model's `provider/model` id and its `thinkingOptions`, and call `inspect_provider` on `codex` with `settings.model` set to each codex model you plan to write, to confirm its `fast_mode` feature exists. A bare `codex` call returns no features. If a model has no `fast_mode`, write it without the flag and say so. If a provider is unavailable, drop it from the options and say so. If you cannot detect any, ask the user to paste the model ids they have access to. Never write a model you have not confirmed is available. The alias `inherit-parent` is always valid even though it is not a detected model.
+Call the Paseo `list_providers` tool, then `list_models` for `claude` and `codex`. pstack supports these two providers natively. That is the dependable source. Record each model's `provider/model` id and its `thinkingOptions`, pstack defaults leave Codex fast mode off. Only when the user asks for it on a role, call `inspect_provider` on `codex` with `settings.model` set to that model to confirm its `fast_mode` feature exists. A bare `codex` call returns no features. If the model has no `fast_mode`, write it without the flag and say so. If a provider is unavailable, drop it from the options and say so. If you cannot detect any, ask the user to paste the model ids they have access to. Never write a model you have not confirmed is available. The alias `inherit-parent` is always valid even though it is not a detected model.
 
 ### 2. Load current state
 
@@ -20,23 +20,23 @@ These are the roles. Each line is one role name, commas included. Panel roles ta
 
 | role | default | panel |
 |---|---|---|
-| `feature, refactoring` | `codex/gpt-6-sol` xhigh fast | |
-| `bug-fix` | `codex/gpt-6-sol` xhigh fast | |
-| `perf-issue` | `codex/gpt-6-sol` xhigh fast | |
-| `hillclimb` | `codex/gpt-6-sol` xhigh fast | |
+| `feature, refactoring` | `codex/gpt-6-sol` xhigh | |
+| `bug-fix` | `codex/gpt-6-sol` xhigh | |
+| `perf-issue` | `codex/gpt-6-sol` xhigh | |
+| `hillclimb` | `codex/gpt-6-sol` xhigh | |
 | `judgment and prose` | `claude/claude-opus-5-5` max | |
 | `hardest tasks` | `claude/claude-opus-5-5` max | |
-| `how explorer` | `codex/gpt-6-sol` xhigh fast | |
+| `how explorer` | `codex/gpt-6-sol` xhigh | |
 | `how explainer` | `claude/claude-opus-5-5` max | |
-| `why investigators` | `codex/gpt-6-sol` xhigh fast | |
+| `why investigators` | `codex/gpt-6-sol` xhigh | |
 | `why synthesizer` | `claude/claude-opus-5-5` max | |
 | `reflect tooling` | `codex/gpt-6-astra` max | |
 | `reflect judgment, divergent, synthesizer` | `claude/claude-opus-5-5` max | |
-| `swarm workers` | `codex/gpt-6-sol` xhigh fast | |
-| `arena runners` | opus max, astra max, sol xhigh fast | yes |
-| `arena cross-judge pool` | opus max, astra max, sol xhigh fast | yes |
-| `architect runners` | opus max, astra max, sol xhigh fast | yes |
-| `interrogate reviewers` | opus max, astra max, sol xhigh fast | yes |
+| `swarm workers` | `codex/gpt-6-sol` xhigh | |
+| `arena runners` | opus max, astra max, sol xhigh | yes |
+| `arena cross-judge pool` | opus max, astra max, sol xhigh | yes |
+| `architect runners` | opus max, astra max, sol xhigh | yes |
+| `interrogate reviewers` | opus max, astra max, sol xhigh | yes |
 
 The default profile set that encodes this table is shown in step 5 below. Call `list_profiles`. If any profile's `id` starts with `pstack-`, treat those profiles as the current choices: each role it names is assigned to it, and its `pstack budget:` line is the current budget. A role named by no pstack profile, when pstack profiles exist, is `inherit-parent`. Otherwise start from the defaults. A role name that is not in step 5, such as `how critics`, is from a retired role. Drop it.
 
@@ -49,7 +49,7 @@ The default profile set that encodes this table is shown in step 5 below. Call `
 - `medium — high reasoning`
 - `small — medium reasoning`
 
-**(b) Apply it.** Build the working table from step 2: the current choices on a re-run, the defaults otherwise. `unlimited` leaves every effort as in that table. `large`, `medium`, and `small` set the `thinkingOptionId` of every real model, panel entries included, to `xhigh`, `high`, or `medium`. The ladder is `ultracode`/`ultra` > `max` > `xhigh` > `high` > `medium` > `low`. A budget lowers any option above its target, `ultracode` and `ultra` included. `off` never changes. If the target is not among the model's detected `thinkingOptions`, use the model's highest detected option at or below the target, else mark the role as needing a choice. Codex fast mode (`fast_mode: true`) does not change with the budget. `inherit-parent` does not change. So `small` turns `claude/claude-opus-5-5 max` into `claude/claude-opus-5-5 medium`, and `codex/gpt-6-sol xhigh fast` into `codex/gpt-6-sol medium fast`.
+**(b) Apply it.** Build the working table from step 2: the current choices on a re-run, the defaults otherwise. `unlimited` leaves every effort as in that table. `large`, `medium`, and `small` set the `thinkingOptionId` of every real model, panel entries included, to `xhigh`, `high`, or `medium`. The ladder is `ultracode`/`ultra` > `max` > `xhigh` > `high` > `medium` > `low`. A budget lowers any option above its target, `ultracode` and `ultra` included. `off` never changes. If the target is not among the model's detected `thinkingOptions`, use the model's highest detected option at or below the target, else mark the role as needing a choice. Codex fast mode (`fast_mode: true`) does not change with the budget. `inherit-parent` does not change. So `small` turns `claude/claude-opus-5-5 max` into `claude/claude-opus-5-5 medium`, and `codex/gpt-6-sol xhigh` into `codex/gpt-6-sol medium`.
 
 **(c) Show the roles and confirm.** Show every role with its model, marking any real model not in the detected set as needing a choice. Also list each role step 2 dropped. Ask whether to accept as-is or change specific roles, offering the detected models plus `inherit-parent` (this role runs on the parent agent's own provider and model) as the options. Prefer your question tool over free text. For panel roles (arena runners, architect runners, interrogate reviewers) the value is a list, and one subagent runs per entry, so the list length sets the count. Panel entries must be real models. `inherit-parent` applies only to a whole role. `arena cross-judge pool` is also a list, but Arena selects one value from it whose provider differs from the parent's when possible. `swarm workers` is the default model for every worker unless a race or comparison assigns another model per arm.
 
@@ -86,13 +86,12 @@ Read `$PASEO_HOME/config.json`. `daemon.agentProfiles` is a whole list, and a mi
     "notes": "pstack model configuration. Delete a role to make it inherit the parent agent's model.\npstack budget: unlimited (max)\npstack roles: reflect tooling; arena runners; arena cross-judge pool; architect runners; interrogate reviewers"
   },
   {
-    "id": "pstack-gpt-6-sol-xhigh-fast",
-    "name": "pstack · GPT-6-Sol xhigh fast",
+    "id": "pstack-gpt-6-sol-xhigh",
+    "name": "pstack · GPT-6-Sol xhigh",
     "provider": "codex",
     "model": "gpt-6-sol",
     "thinkingOptionId": "xhigh",
     "modeId": "auto-review",
-    "featureValues": { "fast_mode": true },
     "notes": "pstack model configuration. Delete a role to make it inherit the parent agent's model.\npstack budget: unlimited (max)\npstack roles: feature, refactoring; bug-fix; perf-issue; hillclimb; how explorer; why investigators; swarm workers; arena runners; arena cross-judge pool; architect runners; interrogate reviewers"
   }
 ]
