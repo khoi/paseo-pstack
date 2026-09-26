@@ -25,12 +25,12 @@ The N candidates will receive the same prompt, so the prompt is the contract.
 
 1. State the artifact each candidate is producing.
 2. Derive the rubric. State what success looks like for *this* task, then turn it into 3-6 concrete gradeable criteria. The rubric is the picker's tool in Phase D. Candidates only see the task.
-3. Pick the runners. Use the `arena runners` line in `~/.cursor/rules/pstack-models.mdc`. If the rule or that line is missing, default to one each on `claude-opus-5-5-max`, `gpt-5.6-sol-max`, `grok-4.7-xhigh-fast`. An `auto` or `inherit-parent` entry in this line or the cross-judge line means the parent model, so omit `model` for it. If the Task tool rejects a configured entry, run that seat on its family's default and say so. Families go by prefix: `claude-*`, `gpt-*`, and `grok-*`. With no family match, use `claude-opus-5-5-max`. If it rejects a default, use the closest valid slug of the same family from its error message. Spawn more when the arena covers multiple design directions. Same model N times when the work is generation-bound rather than judgment-sensitive.
+3. Pick the runners. Use every pstack Agent profile whose `pstack roles:` line names `arena runners` (read them with `list_profiles`), one runner per profile, or N for a count suffix `xN`. If there are no pstack profiles, default to one each on `claude/claude-opus-5-5` max, `codex/gpt-6-astra` max, `codex/gpt-6-sol` xhigh fast. An `inherit-parent` entry in this role or the cross-judge role (a role no pstack profile names once pstack profiles exist) means the parent model, so launch it on your own provider and model. If `create_agent` rejects a configured entry, run that seat on its provider's default and say so: `claude/claude-opus-5-5` max for `claude`, `codex/gpt-6-astra` max for `codex`. With no provider match, use `claude/claude-opus-5-5` max. If it rejects a default, use the closest valid model of the same provider from `list_models`. Spawn more when the arena covers multiple design directions. Same model N times when the work is generation-bound rather than judgment-sensitive.
 4. Assign output paths. Each candidate writes to its own location (a git worktree where possible, otherwise `/tmp/arena-<slug>/candidate-<n>/`), per the **separate-before-serializing-shared-state** principle skill.
 
 ## Phase B: Fan out
 
-Spawn all N subagents in one message with `run_in_background: true`, each with the task, the path to the shared grounding, its own output path, and instructions to produce both the artifact and a short rationale.
+Spawn all N Paseo subagents in one message with `create_agent` and `notifyOnFinish: true` (the default, so don't poll), each with the task, the path to the shared grounding, its own output path, and instructions to produce both the artifact and a short rationale.
 
 Each rationale names the alternatives the candidate considered and what it rejected.
 
@@ -38,7 +38,7 @@ If a candidate fails to produce output, proceed with N-1 and note the dropout in
 
 ## Phase C: Cross-judge
 
-After all Phase B candidates complete, choose one model from the `arena cross-judge pool` line in `~/.cursor/rules/pstack-models.mdc`. If the rule or that line is missing, choose from `claude-opus-5-5-max`, `gpt-5.6-sol-max`, `grok-4.7-xhigh-fast`. Prefer a different model family from the parent's. Spawn one readonly judge subagent on that model. It sees the rubric and the candidates by path label, scores each criterion, and recommends a base with rationale. It runs in parallel with the parent's reading in Phase D, not with the candidates themselves. Don't spawn the judge while candidates are still writing.
+After all Phase B candidates complete, choose one profile from the pstack Agent profiles that name `arena cross-judge pool`. If there are no pstack profiles, choose from `claude/claude-opus-5-5` max, `codex/gpt-6-astra` max, `codex/gpt-6-sol` xhigh fast. Prefer a different provider from the parent's. Spawn one read-only judge subagent on that model, and say it is read-only in its prompt. It sees the rubric and the candidates by path label, scores each criterion, and recommends a base with rationale. It runs in parallel with the parent's reading in Phase D, not with the candidates themselves. Don't spawn the judge while candidates are still writing.
 
 ## Phase D: Pick a base
 

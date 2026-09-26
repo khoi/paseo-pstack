@@ -225,7 +225,7 @@ Use only the configured marker strings. The repro automation trusts the marker o
 
 After posting, read the same source thread and verify the verdict appears under `SOURCE_THREAD_TS`. If it does not, never retry at the root.
 
-If this run created a tracker issue and the verdict did not land, use the adapter's compensation action. Verify that the issue is canceled, closed, or deleted. If compensation cannot be verified, report the failure only in the automation run output.
+If this run created a tracker issue and the verdict did not land, use the adapter's compensation action. Verify that the issue is canceled, closed, or deleted. If compensation cannot be verified, report the failure only in the schedule run output.
 
 ## 10. Watch one follow-up window
 

@@ -16,33 +16,33 @@ Invoke when the user says "reflect" or "/reflect". Skip when the conversation is
 
 ### 1. Locate the active transcript
 
-The parent finds its own transcript file before fanning out. The system prompt names the active workspace's `agent-transcripts/` directory. Use that path. Do not glob across `~/.cursor/projects/*/`. That crosses workspace boundaries and reads private chats from unrelated projects.
+The parent finds its own transcript file before fanning out. Your provider keeps it: Claude Code under `~/.claude/projects/<cwd-slug>/` (the working directory with `/` and `.` replaced by `-`), Codex under `~/.codex/sessions/`. Use your own working directory's path. Do not glob across `~/.claude/projects/*/`. That crosses workspace boundaries and reads private chats from unrelated projects.
 
 ```bash
-ls -t <agent-transcripts>/*.jsonl <agent-transcripts>/*/*.jsonl <agent-transcripts>/*/subagents/*.jsonl 2>/dev/null | head -10
+ls -t ~/.claude/projects/<cwd-slug>/*.jsonl ~/.claude/projects/<cwd-slug>/*/subagents/*.jsonl ~/.codex/sessions/*/*/*/*.jsonl 2>/dev/null | head -10
 ```
 
-Three transcript layouts: legacy flat (`<id>.jsonl`), current nested (`<id>/<id>.jsonl`), and subagent (`<parent>/subagents/<child>.jsonl`).
+Three transcript layouts: Claude Code session (`<id>.jsonl`), Claude Code subagent (`<parent>/subagents/<child>.jsonl`), and Codex (`YYYY/MM/DD/rollout-*.jsonl`, whose first line records the `cwd`).
 
-For each candidate, read the first JSONL line and check that `message.content[0].text` contains the conversation's opening user prompt. Take the matching path. If no path resolves, write a tight digest of the session and pass that instead.
+For each candidate, check that it belongs to your working directory and contains the conversation's opening user prompt. Take the matching path. If no path resolves, write a tight digest of the session and pass that instead.
 
 ### 2. Spawn three reviewers in parallel
 
-One message, three `Task` calls, `subagent_type: generalPurpose`, with `model` set as below, agent mode (`readonly: false`). Reviewers need MCP access for context lookups (tickets, chat threads, observability traces referenced in the transcript). Readonly strips MCPs.
+One message, three `create_agent` calls, with the profile set as below, in the profile's mode (not a read-only or plan mode). Reviewers need MCP access for context lookups (tickets, chat threads, observability traces referenced in the transcript). A read-only mode strips MCPs.
 
-Each reviewer and the synthesizer name a role line in the `pstack-models.mdc` rule and a default. Set `model` to that line's value, or to the default if the rule or the line is missing. Leave `model` unset when the value is `auto` or `inherit-parent`. If the Task tool rejects a slug, use the default and say so. If it rejects the default, use the closest valid slug of the same family from its error message.
+Each reviewer and the synthesizer name a role in the pstack Agent profiles and a default. Set the `create_agent` launch (`provider/model`, `thinkingOptionId`, `modeId`, features) from the `pstack-*` profile whose `pstack roles:` line names the role (read them with `list_profiles`), or to the default if there are no pstack profiles. Launch on your own provider and model when the value is `inherit-parent`, which is any role no pstack profile names once pstack profiles exist. If `create_agent` rejects a model, use the default and say so. If it rejects the default, use the closest valid model of the same provider from `list_models`.
 
-| Lens | Role line | Default `model` | Prompt template |
+| Lens | Role | Default | Prompt template |
 |---|---|---|---|
-| Judgment | `reflect judgment, divergent, synthesizer` | `claude-opus-5-5-max` | `references/judgment-reviewer.md` |
-| Tooling | `reflect tooling` | `gpt-5.6-sol-max` | `references/tooling-reviewer.md` |
-| Divergent | `reflect judgment, divergent, synthesizer` | `claude-opus-5-5-max` | `references/divergent-reviewer.md` |
+| Judgment | `reflect judgment, divergent, synthesizer` | `claude/claude-opus-5-5` max | `references/judgment-reviewer.md` |
+| Tooling | `reflect tooling` | `codex/gpt-6-astra` max | `references/tooling-reviewer.md` |
+| Divergent | `reflect judgment, divergent, synthesizer` | `claude/claude-opus-5-5` max | `references/divergent-reviewer.md` |
 
-Pass each template verbatim, substituting the transcript path or digest where marked. Reviewers return findings in the `Task` response body.
+Pass each template verbatim, substituting the transcript path or digest where marked. Reviewers return findings in their final message (read it with `get_agent_activity`).
 
 ### 3. Synthesize
 
-One `Task` call, `subagent_type: generalPurpose`, with `model` from the `reflect judgment, divergent, synthesizer` line (default `claude-opus-5-5-max`), agent mode (`readonly: false`). The synthesizer's quality check includes spot-verifying citations, which can require MCP access. Readonly strips MCPs. Use `references/synthesizer.md` verbatim, with each reviewer's full output inlined where marked. The synthesizer returns a structured Accepted / Rejected / Backlog list.
+One `create_agent` call, with the profile from the `reflect judgment, divergent, synthesizer` role (default `claude/claude-opus-5-5` max), in the profile's mode (not a read-only or plan mode). The synthesizer's quality check includes spot-verifying citations, which can require MCP access. A read-only mode strips MCPs. Use `references/synthesizer.md` verbatim, with each reviewer's full output inlined where marked. The synthesizer returns a structured Accepted / Rejected / Backlog list.
 
 ### 4. Structural enforcement check
 
@@ -57,7 +57,7 @@ Backlog items file to whatever devex / backlog tracker your team uses automatica
 For each approved Accepted item, follow the Routing field exactly:
 
 - Trivial existing-skill edit (a one-line bullet, a tightened sentence, a stale fact corrected): parent does directly.
-- Substantive existing-skill edit (a new section, a new pattern table, more than ~10 lines): hand to Cursor's built-in `create-skill` skill and run its draft / test / iterate loop.
+- Substantive existing-skill edit (a new section, a new pattern table, more than ~10 lines): hand to the `create-skill` skill if installed and run its draft / test / iterate loop.
 - `tune description: <skill path>` (the skill exists but didn't trigger when it should have): hand to `create-skill` and run its description-optimization loop.
 - `new skill via create-skill: <kebab-name>`: hand creation to `create-skill`. Do not invent the shape ad hoc.
 

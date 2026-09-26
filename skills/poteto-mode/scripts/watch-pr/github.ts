@@ -2,7 +2,7 @@ import { spawn } from "node:child_process";
 import type * as T from "./types.ts";
 import { nonEmpty, parsePrNumber } from "./types.ts";
 export const REVIEW_THREADS_QUERY =
-  "\nquery ReviewThreads($owner: String!, $repo: String!, $pr: Int!) {\n  repository(owner: $owner, name: $repo) {\n    pullRequest(number: $pr) {\n      reviewThreads(first: 100) {\n        nodes {\n          id\n          isResolved\n          comments(first: 10) {\n            nodes {\n              body\n              createdAt\n              path\n              line\n              author { login }\n            }\n          }\n        }\n      }\n    }\n  }\n}\n";
+  "\nquery ReviewThreads($owner: String!, $repo: String!, $pr: Int!) {\n  repository(owner: $owner, name: $repo) {\n    pullRequest(number: $pr) {\n      reviewThreads(first: 100) {\n        nodes {\n          id\n          isResolved\n          comments(first: 10) {\n            nodes {\n              body\n              createdAt\n              path\n              line\n              author { __typename login }\n            }\n          }\n        }\n      }\n    }\n  }\n}\n";
 export const PR_COMMIT_STATUS_QUERY =
   "\nquery PrCommitStatuses($owner: String!, $repo: String!, $pr: Int!) {\n  repository(owner: $owner, name: $repo) {\n    pullRequest(number: $pr) {\n      commits(last: 50) {\n        nodes {\n          commit {\n            oid\n            statusCheckRollup {\n              state\n            }\n          }\n        }\n      }\n    }\n  }\n}\n";
 export const PR_CHECK_ROLLUP_QUERY =
@@ -319,6 +319,7 @@ function parseComment(value: unknown): T.ReviewComment {
       author === null
         ? null
         : optionalString(author.login, "review comment.author.login"),
+    authorIsBot: author?.__typename === "Bot",
     body: string(object.body, "review comment.body"),
     path: optionalString(object.path, "review comment.path"),
     line:
@@ -330,34 +331,41 @@ function parseComment(value: unknown): T.ReviewComment {
     createdAt: string(object.createdAt, "review comment.createdAt"),
   };
 }
-function isBugbot(comment: T.ReviewComment | null): boolean {
+export function configuredReviewBotLogins(
+  value: string | undefined = process.env.WATCH_PR_REVIEW_BOTS
+): readonly string[] {
+  return (value ?? "")
+    .split(",")
+    .map((login) => login.trim().toLowerCase())
+    .filter((login) => login.length > 0);
+}
+function isReviewBot(
+  comment: T.ReviewComment | null,
+  reviewBotLogins: readonly string[]
+): boolean {
   if (comment === null) return false;
   const author = (comment.authorLogin ?? "").toLowerCase();
-  const body = comment.body.toLowerCase();
   return (
-    author.includes("bugbot") ||
-    (author === "cursor" &&
-      [
-        "bugbot",
-        "cursor_automation_id",
-        "agentic security review",
-        "description start",
-        "severity",
-      ].some((token) => body.includes(token)))
+    comment.authorIsBot ||
+    author.endsWith("[bot]") ||
+    reviewBotLogins.includes(author)
   );
 }
 function passKey(comment: T.ReviewComment | null): string | null {
   if (comment === null) return null;
   for (const pattern of [
     /RUN_ID:\s*([a-zA-Z0-9_.:-]+)/,
-    /CURSOR_AUTOMATION_ID:\s*([a-zA-Z0-9_.:-]+)/,
+    /\b(?:[A-Z]+_)?AUTOMATION_ID:\s*([a-zA-Z0-9_.:-]+)/,
   ]) {
     const match = pattern.exec(comment.body);
     if (match?.[1]) return match[1];
   }
   return null;
 }
-export function parseReviewThreads(value: unknown): readonly T.ReviewThread[] {
+export function parseReviewThreads(
+  value: unknown,
+  reviewBotLogins: readonly string[] = configuredReviewBotLogins()
+): readonly T.ReviewThread[] {
   const nodes = list(
     at(value, ["data", "repository", "pullRequest", "reviewThreads", "nodes"]),
     "reviewThreads.nodes"
@@ -384,7 +392,7 @@ export function parseReviewThreads(value: unknown): readonly T.ReviewThread[] {
   const keys = new Set<string>();
   let keyless = false;
   for (const thread of threads) {
-    if (!isBugbot(thread.firstComment)) continue;
+    if (!isReviewBot(thread.firstComment, reviewBotLogins)) continue;
     const key = passKey(thread.firstComment);
     if (key === null) keyless = true;
     else keys.add(key);
@@ -395,8 +403,8 @@ export function parseReviewThreads(value: unknown): readonly T.ReviewThread[] {
     .map(({ id, firstComment }) => ({
       id,
       firstComment,
-      isBugbot: isBugbot(firstComment),
-      bugbotReviewPasses: passes,
+      isReviewBot: isReviewBot(firstComment, reviewBotLogins),
+      reviewBotPasses: passes,
     }));
 }
 export function parsePullRequest(
@@ -562,11 +570,11 @@ export class GhGitHubReader implements T.GitHubReader {
     const page = record(contexts.pageInfo, "contexts.pageInfo");
     if (typeof page.hasNextPage !== "boolean")
       missing("contexts.pageInfo.hasNextPage", page.hasNextPage);
-    const cursor = optionalString(
+    const next = optionalString(
       page.endCursor,
       "contexts.pageInfo.endCursor"
     );
-    return { checks, endCursor: page.hasNextPage && cursor ? cursor : null };
+    return { checks, endCursor: page.hasNextPage && next ? next : null };
   }
   async reviewThreads(
     context: T.PrContext

@@ -1,16 +1,16 @@
 # Reproduce automation prompt
 
-> Source material for the copied setup workflow. Paraphrase this intent into a built-in `automate` draft after `automate` confirms that the copied pack is committed in the repository where the automation will run.
+> Source material for the copied setup workflow. Paraphrase this intent into a `create_schedule` prompt after you confirm that the copied pack is committed in the repository at the schedule's `cwd`.
 
-Read and follow `.cursor/automations/benny/skills/reproduce-and-fix-issues/SKILL.md` for this run.
+Read and follow `.paseo/automations/benny/skills/reproduce-and-fix-issues/SKILL.md` for this run.
 
-Configuration source. Include this repository-relative path only when it is committed in the same target repository. Otherwise paraphrase the configured values. Never use a plugin source or cache path:
+Configuration source. Include this repository-relative path only when it is committed in the same target repository. Otherwise paraphrase the configured values. Never use a skill install path outside the repository:
 
 ```text
 {{BENNY_CONFIG_PATH}}
 ```
 
-Trigger:
+Trigger. Each run polls the configured source channel and takes the oldest top-level report that no earlier run of this schedule handled, judged from `schedule_logs` for this schedule and the source and operations threads. Fill these values from that report. If there is none, stop without posting:
 
 ```json
 {
@@ -20,7 +20,7 @@ Trigger:
 }
 ```
 
-The creation intent should describe this as a new top-level report in the configured source Slack channel. It should include the configured repository, default branch, issue tracker, control adapter, feature map, and draft pull request capability.
+The creation intent should describe this as a new top-level report in the configured source Slack channel. It should include the configured repository, default branch, issue tracker, control adapter, feature map, and draft pull request capability. Create this schedule with `isolation: "worktree"` so every run works in its own Paseo worktree.
 
 Treat the source channel and root thread timestamp as immutable. If either is missing or does not match configuration, stop without posting.
 

@@ -1,33 +1,120 @@
-# pstack
+# paseo-pstack
 
-i'm [poteto](https://x.com/poteto). i'm not a president or ceo, but i've worked with millions of lines of code at Meta, Netflix, and Cursor. i'm also on the react core team where i help build and maintain react compiler.
+[pstack](#about-pstack) is poteto's set of rigorous engineering skills: a mode skill with 23 playbooks, multi-model review panels, parallel fan-out, and 23 principles. this repo ports it to run natively on [Paseo](https://paseo.sh) with **Claude Code** and **Codex**.
+
+the skills are copied word for word. only the host-specific plumbing changed:
+
+| pstack needs | Paseo provides |
+|---|---|
+| subagents on a chosen model | `create_agent` with any `claude/...` or `codex/...` model |
+| per-role model config | **Agent profiles** named `pstack-*`, written by `/setup-pstack` |
+| cross-model review panels | one Paseo agent per panel seat, mixing Claude Code and Codex |
+| isolated parallel workers | Paseo **worktree workspaces** |
+| "keep going until done" loops | Paseo **heartbeats** |
+| unattended automations (benny) | Paseo **schedules** |
+| resuming past work | Paseo agent history (`paseo ls -a -g`, `paseo logs`) |
+
+because every subagent is a real Paseo agent, you can watch, steer, and approve the whole fleet from the Paseo app on your phone or desktop.
+
+## requirements
+
+- a running Paseo daemon (desktop app, or `paseo daemon start`). see [paseo.sh](https://paseo.sh).
+- Claude Code and/or Codex installed and signed in on the daemon's machine. check with `paseo provider ls`.
+- **Paseo tools enabled for agents.** pstack drives subagents, workspaces, heartbeats, and schedules through them. in the app, open **Settings → your host → Orchestration → Enable Paseo tools**. or set it in `~/.paseo/config.json`:
+
+  ```json
+  { "daemon": { "mcp": { "injectIntoAgents": true } } }
+  ```
+
+  then run `paseo reload`. agents started before the change need a restart to see the tools.
+
+pstack works with just one provider. with both, the review panels get real model diversity, which is the point of most of them.
+
+## setup
+
+**1. install the skills** on the machine where your agents run:
+
+```bash
+npx skills add getpaseo/paseo
+npx skills add khoi/paseo-pstack
+```
+
+the first adds the `paseo` reference skill pstack leans on. the second adds pstack itself. pick Claude Code and Codex when the installer asks which agents to install for. to install for a single project instead, run the second command from that repo's root and choose project scope; skills land in `.agents/skills/`.
+
+**2. configure models.** start a Claude Code or Codex agent in Paseo and run:
+
+```
+/setup-pstack
+```
+
+it lists the models your daemon can launch, asks for a reasoning budget, shows the role table, and writes `pstack-*` Agent profiles to `~/.paseo/config.json`, then applies them with `paseo reload`. the defaults:
+
+| profile | model | roles |
+|---|---|---|
+| `pstack-opus-max` | `claude/claude-opus-5-5`, max | judgment and prose, hardest tasks, how explainer, why synthesizer, reflect reviewers, all panels |
+| `pstack-astra-max` | `codex/gpt-6-astra`, max | reflect tooling, all panels |
+| `pstack-sol-xhigh-fast` | `codex/gpt-6-sol`, xhigh, fast mode | feature, refactoring, bug-fix, perf, hillclimb, how explorer, why investigators, swarm workers, all panels |
+
+you can skip this step. without `pstack-*` profiles every skill uses these defaults.
+
+**3. check it.** open **Settings → your host → Agent profiles** in the app. you should see the `pstack · …` profiles, and each one's notes list the roles it serves. edit a profile there to change a model, thinking level, or permission mode. rerun `/setup-pstack` to reassign roles.
+
+**4. go.** in any Paseo agent:
+
+```
+/poteto-mode this pr has a subtle bug where the scroll drifts every 750ms even when idle. repro first, then fix and verify.
+```
+
+in Codex, invoke a skill with `$poteto-mode` or by naming it in your prompt.
+
+## how it runs on paseo
+
+- **delegates show up as subagents** of the agent you prompted. open one to watch it, answer its permission prompts, or steer it. you're notified when each one finishes; nothing polls.
+- **panels mix providers.** `/interrogate`, `/arena`, and `/architect` launch one agent per `pstack-*` profile that names the panel role. add `x2` after a role in a profile's notes to give that model two seats.
+- **parallel workers get their own worktree.** `/swarm` and the autopilot playbooks create worktree workspaces so workers never share a checkout. archiving the workspace cleans the worktree up.
+- **long runs use heartbeats.** say "i'm going to bed, land the stack" or "keep going until the tests pass". poteto-mode's autonomous run playbook sets a heartbeat that wakes the agent on a schedule until the goal is met, then deletes it. manage them with `paseo heartbeat`.
+- **permission modes come from the profiles.** the defaults are `auto` for Claude Code and `auto-review` for Codex, so delegates don't stall on routine prompts. pick a stricter or looser mode per profile in the app.
+
+## benny: unattended triage and repro
+
+[`automations/benny`](./automations/benny/) turns pstack into a bot that triages bug reports and reproduces confirmed ones with UI evidence. it runs as two Paseo schedules. point an agent at [`automations/benny/FOR_AGENTS.md`](./automations/benny/FOR_AGENTS.md) in the target repo. it copies the pack to `.paseo/automations/benny/`, drafts both schedules for your approval, and creates them paused until a test run passes. manage them with `paseo schedule ls`, `paseo schedule logs <id>`, and `paseo schedule run-once <id>`.
+
+## update and remove
+
+```bash
+npx skills update            # pull the latest pstack
+npx skills remove poteto-mode setup-pstack ...   # or remove individual skills
+```
+
+to drop the model config, delete the `pstack-*` profiles in **Settings → Agent profiles**.
+
+## troubleshooting
+
+- **"create_agent is not a tool" / delegates never start.** Paseo tools aren't enabled for that agent. see requirements, then restart the agent.
+- **a panel only runs one or two reviewers.** only providers with a `pstack-*` profile get a seat. run `paseo provider ls`, then rerun `/setup-pstack`.
+- **a model was rejected.** the daemon's model list changed. rerun `/setup-pstack`; it only writes models the daemon reports.
+- **a delegate is stuck waiting.** it's waiting on a permission prompt. answer it in the app, or give its profile a less strict mode.
+- **anything else.** check the daemon log at `~/.paseo/daemon.log`.
+
+## about pstack
+
+pstack is by [poteto](https://x.com/poteto) (Lauren Tan), MIT licensed. the rest of this readme is poteto's, adapted only where it named the old host.
+
+i'm [poteto](https://x.com/poteto). i'm not a president or ceo, but i've worked with millions of lines of code at Meta and Netflix. i'm also on the react core team where i help build and maintain react compiler.
 
 there's a growing sense that ai writes too much slop code. i agree. i don't want to ship like a team of twenty slop artists. throughput without quality is not a goal i aspire to. if you want to go fast, go deep first. 
 
-**pstack is my answer.** these are the same skills i use everyday to ship high quality code at Cursor. this turns cursor into a real engineering team. the goal is not to maximize loc, in fact it's the opposite. pstack helps you write less, but higher quality code.
+**pstack is my answer.** these are the same skills i use everyday to ship high quality code. this turns paseo into a real engineering team. the goal is not to maximize loc, in fact it's the opposite. pstack helps you write less, but higher quality code.
 
 **pstack gives you fearless parallelism.** when you can go deep on one agent and trust it to write good, verifiable code, you can truly parallelize with confidence. start multiple agents up with `poteto-mode` and trust that they'll apply rigorous engineering principles to their work.
 
-**cursor gives you the best of all worlds.** every frontier model has its strengths and weaknesses. use any model with pstack. in fact, many of my skills use multi-model workflows to take advantage of each model's unique strengths.
+**paseo gives you the best of all worlds.** every frontier model has its strengths and weaknesses. use any model with pstack. in fact, many of my skills use multi-model workflows to take advantage of each model's unique strengths.
 
 fork it. improve it. make it yours. PRs are welcome! 
 
-## install
-
-```bash
-/add-plugin pstack
-```
-
-## get started
-
-two steps:
-
-1. run [`/setup-pstack`](./skills/setup-pstack/SKILL.md), pick a reasoning budget, and choose which models you want.
-2. use [`/poteto-mode`](./skills/poteto-mode/SKILL.md) whenever you're doing anything that requires rigor.
-
 new here? the [pstack guide](./docs/guide/README.md) walks you through a first real task, from setup and prompting through verification and overnight runs.
 
-that's it. the other skills are situational; the mode skill uses them for you as needed. out of the box the mode splits work by model strength: code delegates (feature, refactoring, bug fix, perf, hillclimb) go to grok, while the hardest changes, prose, and judgment go to opus 5.5. the default panel is opus 5.5 / sol / grok. [`/setup-pstack`](./skills/setup-pstack/SKILL.md) changes any of it.
+the other skills are situational; the mode skill uses them for you as needed. out of the box the mode splits work by model strength: code delegates (feature, refactoring, bug fix, perf, hillclimb) go to gpt-6-sol on codex, while the hardest changes, prose, and judgment go to opus 5.5 on claude code. the default panel is opus 5.5 / astra / sol. [`/setup-pstack`](./skills/setup-pstack/SKILL.md) changes any of it.
 
 ## usage
 
@@ -90,7 +177,7 @@ the full rules and playbooks live in [`skills/poteto-mode/SKILL.md`](./skills/po
 
 [`/poteto-mode`](./skills/poteto-mode/SKILL.md) is also a sticky mode: once entered it stays on across turns, applying itself when a playbook matches or the task needs rigor and staying out of the way otherwise. opt out any time by saying so.
 
-[`/poteto-mode`](./skills/poteto-mode/SKILL.md) works extremely well with cursor's `/loop` command. you can make cursor work for many hours without sacrificing rigor.
+[`/poteto-mode`](./skills/poteto-mode/SKILL.md) works extremely well with paseo heartbeats. you can make paseo work for many hours without sacrificing rigor.
 
 ## skills
 
@@ -119,8 +206,8 @@ the full rules and playbooks live in [`skills/poteto-mode/SKILL.md`](./skills/po
 | [`/swarm`](./skills/swarm/SKILL.md) | you want N parallel workers across different slices or races, then one aggregated report. |
 | [`/interrogate`](./skills/interrogate/SKILL.md) | you have a diff and want several different models to try to break it, including a strict code-quality lens. |
 | [`/automate-me`](./skills/automate-me/SKILL.md) | you want your own `-mode` skill, drafted from how you've actually worked. |
-| [`/make-bot-ui`](./skills/make-bot-ui/SKILL.md) | you want a page or dashboard whose buttons wake a Grok Bot over a webhook, including the sender-key handoff and Tailscale. |
-| [`/setup-pstack`](./skills/setup-pstack/SKILL.md) | you want to pick which models pstack uses per role. detects your models and writes a config rule. |
+| [`/make-bot-ui`](./skills/make-bot-ui/SKILL.md) | you want a page or dashboard whose buttons wake a Paseo schedule agent on demand, including the sender-key handoff and Tailscale. |
+| [`/setup-pstack`](./skills/setup-pstack/SKILL.md) | you want to pick which models pstack uses per role. detects your models and writes pstack Agent profiles. |
 | [`/reflect`](./skills/reflect/SKILL.md) | a long task landed and you want the recipe captured as a skill edit. |
 | [`/teach`](./skills/teach/SKILL.md) | you want to actually understand a change or subsystem, not just have it summarized. runs how + why and weaves one plain explanation, built up diagram by diagram. |
 | [`/tdd`](./skills/tdd/SKILL.md) | you're fixing a bug and there's a cheap local test path. write the failing test first, then the fix. |
@@ -185,11 +272,11 @@ automate-me:       /automate-me
 
 ## the `poteto-agent` and Comment Sicko subagents
 
-pstack also ships a subagent that runs my style end to end. spawn it from a parent agent via [`subagent_type: "poteto-agent"`](./agents/poteto-agent.md). it reads `poteto-mode` in full, including its inline principles index, before doing any work. substituting `generalPurpose` skips that read and drifts.
+pstack also ships a subagent that runs my style end to end. spawn it from a parent agent with a Paseo `create_agent` whose prompt starts with "Use the [poteto-agent](./skills/poteto-agent/SKILL.md) skill." it reads `poteto-mode` in full, including its inline principles index, before doing any work. substituting a plain agent skips that read and drifts.
 
-[`/poteto-mode`](./skills/poteto-mode/SKILL.md) and [`subagent_type: "poteto-agent"`](./agents/poteto-agent.md) route through the same wrapper.
+[`/poteto-mode`](./skills/poteto-mode/SKILL.md) and [`poteto-agent`](./skills/poteto-agent/SKILL.md) route through the same wrapper.
 
-pstack also ships [Comment Sicko](./agents/comment-sicko.md), a read-only comment reviewer available as `subagent_type: "Comment Sicko"`. usually invoke it through [`/no-comments`](./skills/no-comments/SKILL.md), not directly.
+pstack also ships [Comment Sicko](./skills/comment-sicko/SKILL.md), a read-only comment reviewer available as the `comment-sicko` skill. usually invoke it through [`/no-comments`](./skills/no-comments/SKILL.md), not directly.
 
 ## principles
 
@@ -230,15 +317,16 @@ twenty-three short skills, one principle each. `poteto-mode` indexes them inline
 
 a few things `poteto-mode` references but doesn't bundle:
 
-- `/deslop` and the `deslop` skill ship in the `cursor-team-kit` plugin.
-- `control-cli` (for CLIs and TUIs) and `control-ui` (for browser, Electron, web) ship in `cursor-team-kit` too.
-- `/create-skill` is a cursor built-in. cursor also ships a built-in `/babysit`; inside `poteto-mode`, the [babysit playbook](./skills/poteto-mode/playbooks/babysit.md) supersedes it for pr-status requests.
+- `/deslop` and the `deslop` skill.
+- control skills for CLIs and TUIs, and for browser, Electron, web (for example `agent-browser`).
+- `/create-skill`. if you have another `/babysit` skill, inside `poteto-mode` the [babysit playbook](./skills/poteto-mode/playbooks/babysit.md) supersedes it for pr-status requests.
+- the [`paseo`](https://github.com/getpaseo/paseo/tree/main/skills/paseo) skill, which pstack uses to drive subagents, workspaces, heartbeats, and schedules. install it with `npx skills add getpaseo/paseo`.
 
-install `cursor-team-kit` alongside pstack if you want the full set.
+install them alongside pstack if you want the full set.
 
 ## why are there no planning skills?
 
-cursor already has a great plan mode which works great with pstack. but personally, i don't believe in planning. the best spec is code. if you do want to make a plan, [`/poteto-mode`](./skills/poteto-mode/SKILL.md) covers it, but it's not a default. 
+claude code and codex already have plan modes which work great with pstack. but personally, i don't believe in planning. the best spec is code. if you do want to make a plan, [`/poteto-mode`](./skills/poteto-mode/SKILL.md) covers it, but it's not a default. 
 
 ## make it yours
 
@@ -246,15 +334,9 @@ cursor already has a great plan mode which works great with pstack. but personal
 
 type [`/automate-me`](./skills/automate-me/SKILL.md). it mines your recent transcripts, drafts a `<your-name>-mode` skill from how you've actually worked, and routes through pstack underneath. you keep pstack as the base and end up with your own routing skill alongside `poteto-mode`.
 
-models are configurable too. type [`/setup-pstack`](./skills/setup-pstack/SKILL.md). it detects the models you have access to and writes a small always-applied rule mapping each role (code, judgment, the review panels) to a model. every skill reads it and falls back to sensible defaults when the rule is absent, so you override only what you want.
+models are configurable too. type [`/setup-pstack`](./skills/setup-pstack/SKILL.md). it detects the models you have access to and writes pstack Agent profiles to your Paseo config, mapping each role (code, judgment, the review panels) to a model. every skill reads them with `list_profiles` and falls back to sensible defaults when there are none, so you override only what you want. you can edit them in the Paseo app under Agent profiles.
 
-a rule written before 0.15.3 pins the old default models. delete those role lines, or delete the file, then run `/setup-pstack` again. a rerun keeps any role whose model differs from the default.
-
-## automations
-
-pstack also ships a dormant [benny automation pack](./automations/benny/). benny triages slack issue reports, then reproduces and fixes confirmed bugs with real ui evidence. its files are not registered as slash skills.
-
-to set it up, point cursor at [`FOR_AGENTS.md`](./automations/benny/FOR_AGENTS.md). setup copies the pack into the target repository at `.cursor/automations/benny/`, enables pstack there for shared skills, and keeps user configuration outside the copied pack.
+a rerun of `/setup-pstack` keeps any role whose model differs from the default.
 
 ## license
 

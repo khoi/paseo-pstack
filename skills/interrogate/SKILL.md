@@ -33,20 +33,19 @@ Write one clear paragraph. If you're unsure about the intent, ask the user befor
 
 ## Step 3, Spawn Reviewers
 
-Launch all reviewers in a single message using the Task tool. Use the `interrogate reviewers` line in `~/.cursor/rules/pstack-models.mdc`, one reviewer per entry, extending or shrinking the Reviewer A/B/C labels below to the configured entry count. If the rule or that line is missing, use the table defaults.
+Launch all reviewers in a single message using Paseo `create_agent`. Use the pstack Agent profiles that name `interrogate reviewers` (read them with `list_profiles`), one reviewer per profile, or N for a count suffix `xN`, extending or shrinking the Reviewer A/B/C labels below to the configured entry count. If there are no pstack profiles, use the table defaults.
 
 | Subagent | Default model |
 |----------|---------------|
-| Reviewer A | `claude-opus-5-5-max` |
-| Reviewer B | `gpt-5.6-sol-max` |
-| Reviewer C | `grok-4.7-xhigh-fast` |
+| Reviewer A | `claude/claude-opus-5-5` max |
+| Reviewer B | `codex/gpt-6-astra` max |
+| Reviewer C | `codex/gpt-6-sol` xhigh fast |
 
 For each reviewer:
-- `subagent_type`: `generalPurpose`
-- `model`: the configured `interrogate reviewers` entry, or the table default with no configured line. For an `auto` or `inherit-parent` entry, omit `model` so that reviewer runs on the parent model.
-- `readonly`: `true`
+- profile: the configured `interrogate reviewers` entry (`provider/model`, `thinkingOptionId`, `modeId`, features), or the table default with no pstack profiles. For an `inherit-parent` entry (no pstack profile names the role once pstack profiles exist), launch on your own provider and model so that reviewer runs on the parent model.
+- read-only: say so in the prompt (no edits)
 
-If the Task tool rejects a configured entry, run that reviewer on the table default of its family and say so. Families go by prefix: `claude-*`, `gpt-*`, and `grok-*`. With no family match, use Reviewer A's default. If it rejects a table default, check the valid slugs in the Task tool's error message, pick the closest equivalent (prefer the highest-reasoning tier of the same family), spawn with it, and open a separate PR to update the default table. Do not block the review on the slug issue. Never treat an alias entry as a rejected slug or apply either fallback to it.
+If `create_agent` rejects a configured entry, run that reviewer on the table default of its provider and say so. Providers go by prefix: `claude/` and `codex/` (Reviewer B's default for `codex`). With no provider match, use Reviewer A's default. If it rejects a table default, check the valid models with `list_models`, pick the closest equivalent (prefer the highest-reasoning tier of the same provider), spawn with it, and open a separate PR to update the default table. Do not block the review on the model issue. Never treat an alias entry as a rejected model or apply either fallback to it.
 
 Read `references/reviewer-prompt.md` and fill in the template with:
 1. The stated intent

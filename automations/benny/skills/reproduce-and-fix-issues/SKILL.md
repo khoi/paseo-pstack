@@ -119,9 +119,9 @@ Use the configured plain Unicode status strings. Keep status text short:
 - Draft pull request opened
 - Fix did not land
 
-Prefer configured Cursor Slack actions. Use `BENNY_SLACK_BOT_TOKEN` only when the user configured it for a narrow missing capability such as editing this one status message. Never expose the token to a worker.
+Prefer configured Slack MCP actions. Use `BENNY_SLACK_BOT_TOKEN` only when the user configured it for a narrow missing capability such as editing this one status message. Never expose the token to a worker.
 
-If no operations channel is configured, keep detailed status in the automation run output. Do not substitute a source-channel root message.
+If no operations channel is configured, keep detailed status in the schedule run output. Do not substitute a source-channel root message.
 
 ## 5. Load and check the control adapter
 

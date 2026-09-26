@@ -2,11 +2,11 @@
 
 ## what i want to automate
 
-i want two cursor automations that work together in one slack issue channel.
+i want two paseo schedules that work together in one slack issue channel. paseo has no slack trigger, so each schedule polls the source channel on a cron.
 
 ### automation 1: triage issue reports
 
-- trigger: when someone posts a new top-level report in my configured source slack channel, i want this automation to start on that report and keep its original thread coordinates.
+- trigger: when someone posts a new top-level report in my configured source slack channel, i want the next scheduled run to pick up that report and keep its original thread coordinates.
 - behavior: i want it to read the thread and attachments, classify the report as a bug or performance issue, feature request, question or feedback, or reroute, and trace the likely owning layer before routing.
 - tracker: i want it to search my configured tracker for duplicates, update a confident duplicate, and create a ticket only for a clear net-new bug.
 - tools: i want slack thread read and reply access, my configured tracker integration, and my optional routing map.
@@ -15,7 +15,7 @@ i want two cursor automations that work together in one slack issue channel.
 
 ### automation 2: reproduce and fix confirmed bugs
 
-- trigger: i want this automation to start from the same new top-level report, or another supported trigger chosen during setup, then wait for the trusted triage marker in the original thread.
+- trigger: i want this automation to start from the same new top-level report, picked up by its own scheduled poll or an on-demand `run_schedule_once`, then wait for the trusted triage marker in the original thread.
 - gates: i want it to stop when someone clearly owns the fix. if an existing pull request or merged commit may fix the report, i want verification instead of a competing change.
 - behavior: i want it to use my configured control adapter and feature map, reproduce the exact symptom twice through the real ui, and capture screenshots, video, and a read-only state cross-check.
 - fix: i want it to verify existing pull requests without authoring over them. after a confirmed repro, it may attempt one bounded root-cause fix, use tdd when the test is cheap, smoke the blast radius, and open a draft pull request only when before-and-after proof passes.
@@ -28,10 +28,10 @@ i want two cursor automations that work together in one slack issue channel.
 - i want the source channel and root thread coordinates to stay immutable for the whole run.
 - i treat utility and debug bots as evidence, not delegation or fix ownership.
 - i allow subagents to help, but they cannot post to slack or receive slack credentials.
-- i want this entire pack committed at `.cursor/automations/benny/` in the target repository. its `SKILL.md` files are direct automation instructions, not registered plugin skills.
-- i want pstack enabled through the target repository's committed `.cursor/settings.json` only for shared dependencies such as `how`, `why`, `tdd`, `unslop`, and the required principle skills.
-- i want each live automation prompt to read its committed operational file directly. i do not want plugin cache paths, copied excerpts, or slash-skill discovery.
-- i keep user-owned configuration, feature maps, routing maps, and secrets outside `.cursor/automations/benny/` so pack refreshes cannot overwrite them.
+- i want this entire pack committed at `.paseo/automations/benny/` in the target repository. its `SKILL.md` files are direct automation instructions, not registered skills.
+- i want pstack installed into the target repository's committed `.agents/skills/` only for shared dependencies such as `how`, `why`, `tdd`, `unslop`, and the required principle skills.
+- i want each live schedule prompt to read its committed operational file directly. i do not want skill install paths outside the repository, copied excerpts, or slash-skill discovery.
+- i keep user-owned configuration, feature maps, routing maps, and secrets outside `.paseo/automations/benny/` so pack refreshes cannot overwrite them.
 - i want both automations to fail closed when channel coordinates, tracker access, the control adapter, or the feature map are missing or uncertain.
 - i want draft pull requests only. do not merge or deploy.
 
@@ -45,45 +45,42 @@ i want two cursor automations that work together in one slack issue channel.
 - triage identity: `<slack identity>`
 - control skill: `<configured skill or adapter>`
 - feature map: `<committed same-repo path outside the copied pack, or behavior to paraphrase>`
-- models: `<triage, reproduce, code, media review>`
+- models: `<provider/model for triage, reproduce, code, media review>`
 - status emoji strings: `<seen, reproducing, reproduced, blocked, fixing, failed, pull request opened>`
+- schedule cadence: `<triage cron, repro cron>`
 - budgets: `<polling, verdict wait, follow-up, repro, rejection, fix>`
 - optional bot token capability: `<none, file download, or editable operations status>`
 
-start from [`configuration.example.yaml`](./templates/configuration.example.yaml) and [`feature-map.example.md`](./skills/reproduce-and-fix-issues/references/feature-map.example.md). copy and fill them outside this pack, for example under `.cursor/benny/`. keep secret values in a secret manager or environment.
+start from [`configuration.example.yaml`](./templates/configuration.example.yaml) and [`feature-map.example.md`](./skills/reproduce-and-fix-issues/references/feature-map.example.md). copy and fill them outside this pack, for example under `.paseo/benny/`. keep secret values in a secret manager or environment.
 
 ## for the agent
 
-the human enters setup by pointing cursor at this file. do not look for or invoke a discovered benny slash skill.
+the human enters setup by pointing a paseo agent at this file. do not look for or invoke a discovered benny slash skill.
 
 1. ask which repository will run the automations.
 2. treat the directory containing this `FOR_AGENTS.md` as the source pack.
-3. merge the entire source pack into `<target-repository>/.cursor/automations/benny/`.
+3. merge the entire source pack into `<target-repository>/.paseo/automations/benny/`.
 4. preserve every destination-only file. never delete unrelated files or overwrite user-owned configuration, feature maps, or routing maps.
 5. when an existing destination file at a source-managed path differs, review the diff and merge without discarding local edits. if ownership is ambiguous, stop and ask before replacing it.
 6. verify that the copied `FOR_AGENTS.md` and `skills/setup-benny/SKILL.md` exist in the target repository.
-7. read and follow `.cursor/automations/benny/skills/setup-benny/SKILL.md` directly from the target repository.
+7. read and follow `.paseo/automations/benny/skills/setup-benny/SKILL.md` directly from the target repository.
 
-i want you to merge this entry into the target repository's `.cursor/settings.json`:
+i want you to install pstack into the target repository, from its root:
 
-```json
-{
-	"plugins": {
-		"pstack": { "enabled": true }
-	}
-}
+```bash
+npx skills add khoi/paseo-pstack
 ```
 
-preserve every unrelated setting and plugin. preserve comments and valid jsonc syntax when the existing file uses jsonc.
+preserve every unrelated skill in `.agents/skills/`.
 
 i want verification from a fresh agent rooted in the target repository. confirm that pstack's `how`, `why`, `tdd`, `unslop`, and the principle skills used by benny resolve in project scope. do not count skills loaded from the current session or a user-scoped install.
 
-if project-scoped plugins are unavailable or any shared dependency does not resolve, stop and explain what failed. do not add `.cursor/automations/benny/skills/` to a plugin manifest or expect its files to appear in the slash-skill list.
+if project-scoped skills are unavailable or any shared dependency does not resolve, stop and explain what failed. do not copy `.paseo/automations/benny/skills/` into `.agents/skills/` or expect its files to appear in the slash-skill list.
 
-tell me that `.cursor/settings.json`, `.cursor/automations/benny/`, and any referenced secret-free configuration must be committed before either automation is enabled. do not create or update an automation until i explicitly ask.
+tell me that `.agents/skills/`, `.paseo/automations/benny/`, and any referenced secret-free configuration must be committed before either schedule is enabled. do not create or update a schedule until i explicitly ask.
 
-for first-time creation, use built-in `/automate` once for triage and once for repro and fix. complete the draft review, approval, readiness check, and Automations editor handoff for the first automation before starting the second.
+for first-time creation, use paseo's `create_schedule` once for triage and once for repro and fix. complete the draft review, approval, creation, and pause for the first schedule before starting the second.
 
-paraphrase this intent and the finished configuration into each draft. the triage prompt must read and follow `.cursor/automations/benny/skills/triage-issue-reports/SKILL.md`. the repro prompt must read and follow `.cursor/automations/benny/skills/reproduce-and-fix-issues/SKILL.md`. use these repo-relative paths only after `/automate` confirms they are committed in the repository where the automation will run.
+paraphrase this intent and the finished configuration into each draft. the triage prompt must read and follow `.paseo/automations/benny/skills/triage-issue-reports/SKILL.md`. the repro prompt must read and follow `.paseo/automations/benny/skills/reproduce-and-fix-issues/SKILL.md`. use these repo-relative paths only after you confirm they are committed in the repository at the schedule's `cwd`.
 
-for existing automations, do not use `/automate` to inspect or update them. validate the configuration, then use the concise field checklist in the copied setup file so i can edit each automation directly in its editor. do not create duplicates.
+for existing schedules, do not create new ones. validate the configuration, then use the concise field checklist in the copied setup file and change each schedule in place with `update_schedule` once i approve. do not create duplicates.
