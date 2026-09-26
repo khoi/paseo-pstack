@@ -67,6 +67,8 @@ you can skip this step. without `pstack-*` profiles every skill uses these defau
 
 in Codex, invoke a skill with `$poteto-mode` or by naming it in your prompt.
 
+pstack skills never trigger on their own. you invoke them. Claude Code reads `disable-model-invocation: true` in each `SKILL.md`, and Codex reads `policy.allow_implicit_invocation: false` in each skill's `agents/openai.yaml`. once invoked, `poteto-mode` pulls in the other pstack skills itself. the exceptions are `poteto-agent` and `comment-sicko`, which pstack's own delegates load by name.
+
 ## how it runs on paseo
 
 - **delegates show up as subagents** of the agent you prompted. open one to watch it, answer its permission prompts, or steer it. you're notified when each one finishes; nothing polls.

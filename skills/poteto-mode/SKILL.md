@@ -6,6 +6,8 @@ disable-model-invocation: true
 
 # Poteto mode
 
+pstack skills only run when the user invokes them, so they are hidden from your skill list. Every skill this file names lives next to this one: read `../<name>/SKILL.md` relative to this file's directory.
+
 ## Non-negotiables
 
 The Principles section below grounds every trigger. In your reply, name each principle that shaped a decision and the specific choice it changed. Cite only principles whose leaf SKILL.md you read this session.

@@ -1,6 +1,7 @@
 ---
 name: setup-pstack
 description: Configure which models pstack uses per role and at what reasoning budget. Detects your available Paseo models and writes pstack Agent profiles that override the skill defaults. Use for /setup-pstack, "configure pstack models", "pstack budget", or changing pstack's model choices.
+disable-model-invocation: true
 ---
 
 # Setup pstack
