@@ -51,9 +51,9 @@ it lists the models your daemon can launch, asks for a reasoning budget, shows t
 
 | profile | model | roles |
 |---|---|---|
-| `pstack-opus-max` | `claude/claude-opus-5-5`, max | judgment and prose, hardest tasks, how explainer, why synthesizer, reflect reviewers, all panels |
-| `pstack-astra-max` | `codex/gpt-6-astra`, max | reflect tooling, all panels |
-| `pstack-sol-xhigh-fast` | `codex/gpt-6-sol`, xhigh, fast mode | feature, refactoring, bug-fix, perf, hillclimb, how explorer, why investigators, swarm workers, all panels |
+| `pstack-claude-opus-5-5-max` | `claude/claude-opus-5-5`, max | judgment and prose, hardest tasks, how explainer, why synthesizer, reflect reviewers, all panels |
+| `pstack-gpt-6-astra-max` | `codex/gpt-6-astra`, max | reflect tooling, all panels |
+| `pstack-gpt-6-sol-xhigh-fast` | `codex/gpt-6-sol`, xhigh, fast mode | feature, refactoring, bug-fix, perf, hillclimb, how explorer, why investigators, swarm workers, all panels |
 
 you can skip this step. without `pstack-*` profiles every skill uses these defaults.
 
