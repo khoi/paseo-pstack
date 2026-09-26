@@ -8,7 +8,7 @@ disable-model-invocation: true
 
 Explore the codebase to answer "how does X work?" questions. Produce architectural explanations at the level of a senior engineer onboarding onto a subsystem, enough to build a working mental model, not so much that it reads like annotated source code.
 
-Each spawn below is a Paseo `create_agent` call that names a role in the pstack Agent profiles and a default. Set the `create_agent` launch (`provider/model`, `thinkingOptionId`, `modeId`, features) from the `pstack-*` profile whose `pstack roles:` line names the role (read them with `list_profiles`), or to the default if there are no pstack profiles. Launch on your own provider and model when the value is `inherit-parent`, which is any role no pstack profile names once pstack profiles exist. If `create_agent` rejects a model, use the default and say so. If it rejects the default, use the closest valid model of the same provider from `list_models`.
+Each spawn below is a Paseo `create_agent` call that names an override profile, a tier profile, and a default. Set the `create_agent` launch (`provider/model`, `thinkingOptionId`, `modeId`, features) from the pstack Agent profiles (read them with `list_profiles`): the role's override profile if it exists, else its tier profile, else the default. Copy the profile's `featureValues` into `features`. If `create_agent` rejects a model, use the default and say so. If it rejects the default, use the closest valid model of the same provider from `list_models`.
 
 ## Step 1. Assess Complexity
 
@@ -23,7 +23,7 @@ When in doubt, take the simple path.
 
 Decompose the question into 2 to 4 exploration angles, each a distinct slice of the subsystem. Spawn all explorers in a single message:
 
-- profile: the `how explorer` role, default `codex/gpt-6-sol` xhigh
+- profile: `pstack-how-explorer`, else `pstack-code`, default `codex/gpt-6-sol` xhigh
 - read-only: say so in the prompt (no edits)
 
 Each explorer gets the prompt in `references/explorer-prompt.md` with its angle filled in. Then go to Step 3.
@@ -32,7 +32,7 @@ Each explorer gets the prompt in `references/explorer-prompt.md` with its angle 
 
 Spawn one Paseo subagent that explores and explains in one pass:
 
-- profile: the `how explainer` role, default `claude/claude-opus-5-5` max
+- profile: `pstack-how-explainer`, else `pstack-judgment`, default `claude/claude-opus-5-5` max
 - read-only: say so in the prompt (no edits)
 
 Build its prompt from `references/explainer-prompt.md` without the explorer-findings section. Go to Step 4.
@@ -41,7 +41,7 @@ Build its prompt from `references/explainer-prompt.md` without the explorer-find
 
 Once all explorers have returned, spawn one Paseo subagent to synthesize their findings into one explanation:
 
-- profile: the `how explainer` role, default `claude/claude-opus-5-5` max
+- profile: `pstack-how-explainer`, else `pstack-judgment`, default `claude/claude-opus-5-5` max
 - read-only: say so in the prompt (no edits)
 
 Build its prompt from `references/explainer-prompt.md` with every explorer's findings filled in.

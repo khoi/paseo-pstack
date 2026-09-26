@@ -33,16 +33,16 @@ Write one clear paragraph. If you're unsure about the intent, ask the user befor
 
 ## Step 3, Spawn Reviewers
 
-Launch all reviewers in a single message using Paseo `create_agent`. Use the pstack Agent profiles that name `interrogate reviewers` (read them with `list_profiles`), one reviewer per profile, or N for a count suffix `xN`, extending or shrinking the Reviewer A/B/C labels below to the configured entry count. If there are no pstack profiles, use the table defaults.
+Launch all reviewers in a single message using Paseo `create_agent`. Use every pstack Agent profile whose `id` starts with `pstack-interrogate-reviewers` (read them with `list_profiles`), one reviewer per profile, extending or shrinking the Reviewer A/B/C labels below to that count. If there are none, use the table: each reviewer's tier profile, else its default.
 
-| Subagent | Default model |
-|----------|---------------|
-| Reviewer A | `claude/claude-opus-5-5` max |
-| Reviewer B | `codex/gpt-6-astra` max |
-| Reviewer C | `codex/gpt-6-sol` xhigh |
+| Subagent | Tier profile | Default model |
+|----------|--------------|---------------|
+| Reviewer A | `pstack-judgment` | `claude/claude-opus-5-5` max |
+| Reviewer B | `pstack-frontier` | `codex/gpt-6-astra` max |
+| Reviewer C | `pstack-code` | `codex/gpt-6-sol` xhigh |
 
 For each reviewer:
-- profile: the configured `interrogate reviewers` entry (`provider/model`, `thinkingOptionId`, `modeId`, features), or the table default with no pstack profiles. For an `inherit-parent` entry (no pstack profile names the role once pstack profiles exist), launch on your own provider and model so that reviewer runs on the parent model.
+- profile: the reviewer's profile from above (`provider/model`, `thinkingOptionId`, `modeId`, and `featureValues` as `features`), or its table default.
 - read-only: say so in the prompt (no edits)
 
 If `create_agent` rejects a configured entry, run that reviewer on the table default of its provider and say so. Providers go by prefix: `claude/` and `codex/` (Reviewer B's default for `codex`). With no provider match, use Reviewer A's default. If it rejects a table default, check the valid models with `list_models`, pick the closest equivalent (prefer the highest-reasoning tier of the same provider), spawn with it, and open a separate PR to update the default table. Do not block the review on the model issue. Never treat an alias entry as a rejected model or apply either fallback to it.

@@ -21,11 +21,11 @@ Run:
 /setup-pstack
 ```
 
-[`/setup-pstack`](../../skills/setup-pstack/SKILL.md) detects the models you have access to, asks for a reasoning budget, shows you each role (code delegates, judgment, the review panels), and asks what you want. Answer the questions. It writes the pstack Agent profiles (the `pstack-*` entries in `~/.paseo/config.json`), which every pstack skill reads with `list_profiles`.
+[`/setup-pstack`](../../skills/setup-pstack/SKILL.md) detects the models you have access to, asks for a reasoning budget, shows you each role (code delegates, judgment, the review panels), and asks what you want. Answer the questions. It writes the pstack Agent profiles (the `pstack-*` entries in `~/.paseo/config.json`), which every pstack skill reads with `list_profiles`. Three tier profiles, `pstack-code`, `pstack-judgment`, and `pstack-frontier`, cover every role. An override profile, such as `pstack-hardest-tasks`, moves one role to another model.
 
-You only override what you care about. With no pstack profiles, every role keeps the skill's default. To restore the defaults, delete the `pstack-*` profiles. A rerun of `/setup-pstack` keeps any role whose model differs from the default.
+You only override what you care about. With no pstack profiles, every role keeps the skill's default. To restore the defaults, delete the `pstack-*` profiles. A rerun of `/setup-pstack` starts from your current profiles.
 
-You might be wondering what happens if you want a role to follow your own agent. Set a role to `inherit-parent` and pstack launches that subagent on your parent agent's own provider and model. The value is an alias, not a model. For a panel role the value is a list, and one subagent runs per entry, so the list length sets the panel size. Setup also configures `swarm workers`, the default model for every `/swarm` worker unless a race names a model for each arm.
+The review panels run one seat on each tier. To choose the seats yourself, add numbered panel profiles such as `pstack-arena-runners-1` and `pstack-arena-runners-2`. One subagent runs per profile, so the count sets the panel size. Setup also configures `swarm workers`, the default model for every `/swarm` worker unless a race names a model for each arm.
 
 ## Accept the verification offer, or don't
 

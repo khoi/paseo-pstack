@@ -10,7 +10,7 @@ Investigate the motivation and intent behind code.
 
 Companion to the `how` skill. `how` answers what the code does and how it works. `why` answers what forces led to its shape.
 
-Each spawn below is a Paseo `create_agent` call that names a role in the pstack Agent profiles and a default. Set the `create_agent` launch (`provider/model`, `thinkingOptionId`, `modeId`, features) from the `pstack-*` profile whose `pstack roles:` line names the role (read them with `list_profiles`), or to the default if there are no pstack profiles. Launch on your own provider and model when the value is `inherit-parent`, which is any role no pstack profile names once pstack profiles exist. If `create_agent` rejects a model, use the default and say so. If it rejects the default, use the closest valid model of the same provider from `list_models`.
+Each spawn below is a Paseo `create_agent` call that names an override profile, a tier profile, and a default. Set the `create_agent` launch (`provider/model`, `thinkingOptionId`, `modeId`, features) from the pstack Agent profiles (read them with `list_profiles`): the role's override profile if it exists, else its tier profile, else the default. Copy the profile's `featureValues` into `features`. If `create_agent` rejects a model, use the default and say so. If it rejects the default, use the closest valid model of the same provider from `list_models`.
 
 ## Operating Posture
 
@@ -80,7 +80,7 @@ Aim for a complete **coverage map**, not a minimal one. Document the null, don't
 Launch all matching investigators in a single message so they run concurrently. Don't ask one agent to cover multiple MCPs.
 
 Subagent config (each):
-- profile: the `why investigators` role, default `codex/gpt-6-sol` xhigh
+- profile: `pstack-why-investigators`, else `pstack-code`, default `codex/gpt-6-sol` xhigh
 - mode: the profile's mode. **Do not use a read-only or plan mode.** It strips MCP access, which disables MCP-backed investigators entirely. Investigators still shouldn't write anything.
 
 Each investigator gets:
@@ -123,7 +123,7 @@ If your scope assessment suggests a single-commit trivial target where the PR de
 
 Spawn one synthesizer subagent:
 
-- profile: the `why synthesizer` role, default `claude/claude-opus-5-5` max
+- profile: `pstack-why-synthesizer`, else `pstack-judgment`, default `claude/claude-opus-5-5` max
 - mode: the profile's mode. The synthesizer's quality check spot-verifies citations, which can require MCP access. A read-only or plan mode strips MCPs and defeats that.
 
 The synthesizer gets:

@@ -22,12 +22,12 @@ Open a todolist with one entry per phase before launching anything.
 1. State the done predicate and the artifact or report the swarm must return.
 2. Choose the shape. Partition into slices, race N workers on identical briefs, or mix both. For a race or mixed shape, declare `first pass`, `rank all`, or `best-of` before spawning.
 3. Set N from the user or derive it from the shape. N is total workers, not a concurrency limit.
-4. Pick the worker model from the pstack Agent profile whose `pstack roles:` line names `swarm workers` (read them with `list_profiles`). If there are no pstack profiles, use `codex/gpt-6-sol` xhigh. For `inherit-parent` (no pstack profile names the role once pstack profiles exist), launch on your own provider and model so the workers run on the parent model. If `create_agent` rejects a model, use the default and say so. If it rejects the default, use the closest valid model of the same provider from `list_models`. For a model race, name each arm's model up front.
+4. Pick the worker model from the pstack Agent profiles (read them with `list_profiles`): `pstack-swarm-workers` if it exists, else `pstack-code`, else `codex/gpt-6-sol` xhigh. Copy the profile's `provider/model`, `thinkingOptionId`, `modeId`, and `featureValues` into `create_agent`. If `create_agent` rejects a model, use the default and say so. If it rejects the default, use the closest valid model of the same provider from `list_models`. For a model race, name each arm's model up front.
 5. Give each worker its own writable output when it writes. When workers verify or measure commits, each brief names the exact SHAs. A measurement brief also names the method (sample count, what one sample is, order). The worker records both in its result.
 
 ## Phase B: Fan out
 
-Spawn all N workers in one message with `create_agent`, each in its own Paseo worktree (`create_workspace` with isolation `worktree`, then pass its `workspaceId`), `notifyOnFinish: true`, and the step 4 model, or your own provider and model for `inherit-parent`. Run a worker in the current workspace only when it needs access to something outside a fresh worktree.
+Spawn all N workers in one message with `create_agent`, each in its own Paseo worktree (`create_workspace` with isolation `worktree`, then pass its `workspaceId`), `notifyOnFinish: true`, and the step 4 model. Run a worker in the current workspace only when it needs access to something outside a fresh worktree.
 
 When a worker must start from a non-default pushed branch, pass it as `baseBranch` to `create_workspace`.
 

@@ -47,17 +47,21 @@ the first adds the `paseo` reference skill pstack leans on. the second adds psta
 /setup-pstack
 ```
 
-it lists the models your daemon can launch, asks for a reasoning budget, shows the role table, and writes `pstack-*` Agent profiles to `~/.paseo/config.json`, then applies them with `paseo reload`. the defaults:
+it lists the models your daemon can launch, asks for a reasoning budget, shows the roles, and writes `pstack-*` Agent profiles to `~/.paseo/config.json`, then applies them with `paseo reload`. pstack finds them by id. three tier profiles cover every role:
 
-| profile | model | roles |
+| profile | default model | roles |
 |---|---|---|
-| `pstack-claude-opus-5-5-max` | `claude/claude-opus-5-5`, max | judgment and prose, hardest tasks, how explainer, why synthesizer, reflect reviewers, all panels |
-| `pstack-gpt-6-astra-max` | `codex/gpt-6-astra`, max | reflect tooling, all panels |
-| `pstack-gpt-6-sol-xhigh` | `codex/gpt-6-sol`, xhigh | feature, refactoring, bug-fix, perf, hillclimb, how explorer, why investigators, swarm workers, all panels |
+| `pstack-code` | `codex/gpt-6-sol`, xhigh | feature, refactoring, bug-fix, perf, hillclimb, how explorer, why investigators, swarm workers |
+| `pstack-judgment` | `claude/claude-opus-5-5`, max | judgment and prose, hardest tasks, how explainer, why synthesizer, reflect reviewers |
+| `pstack-frontier` | `codex/gpt-6-astra`, max | reflect tooling |
+
+the review panels (`/arena`, `/architect`, `/interrogate`) run one seat on each tier.
+
+to move one role to another model, add an override profile with that role's id, like `pstack-hardest-tasks` or `pstack-swarm-workers`. `/setup-pstack` writes these for you; the full list of ids is in [its skill](./skills/setup-pstack/SKILL.md).
 
 you can skip this step. without `pstack-*` profiles every skill uses these defaults.
 
-**3. check it.** open **Settings → your host → Agent profiles** in the app. you should see the `pstack · …` profiles, and each one's notes list the roles it serves. edit a profile there to change a model, thinking level, or permission mode. rerun `/setup-pstack` to reassign roles.
+**3. check it.** open **Settings → your host → Agent profiles** in the app. you should see the `pstack · …` profiles. edit one there to change the model, thinking level, or permission mode for every role on it. rerun `/setup-pstack` to move roles between models.
 
 **4. go.** in any Paseo agent:
 
@@ -72,7 +76,7 @@ pstack skills never trigger on their own. you invoke them. Claude Code reads `di
 ## how it runs on paseo
 
 - **delegates show up as subagents** of the agent you prompted. open one to watch it, answer its permission prompts, or steer it. you're notified when each one finishes; nothing polls.
-- **panels mix providers.** `/interrogate`, `/arena`, and `/architect` launch one agent per `pstack-*` profile that names the panel role. add `x2` after a role in a profile's notes to give that model two seats.
+- **panels mix providers.** `/interrogate`, `/arena`, and `/architect` launch one agent on each tier profile. to pick the seats yourself, add profiles named `pstack-interrogate-reviewers-1`, `-2`, and so on; they replace the tier seats for that panel.
 - **parallel workers get their own worktree.** `/swarm` and the autopilot playbooks create worktree workspaces so workers never share a checkout. archiving the workspace cleans the worktree up.
 - **long runs use heartbeats.** say "i'm going to bed, land the stack" or "keep going until the tests pass". poteto-mode's autonomous run playbook sets a heartbeat that wakes the agent on a schedule until the goal is met, then deletes it. manage them with `paseo heartbeat`.
 - **permission modes come from the profiles.** the defaults are `auto` for Claude Code and `auto-review` for Codex, so delegates don't stall on routine prompts. pick a stricter or looser mode per profile in the app.
@@ -336,9 +340,9 @@ claude code and codex already have plan modes which work great with pstack. but 
 
 type [`/automate-me`](./skills/automate-me/SKILL.md). it mines your recent transcripts, drafts a `<your-name>-mode` skill from how you've actually worked, and routes through pstack underneath. you keep pstack as the base and end up with your own routing skill alongside `poteto-mode`.
 
-models are configurable too. type [`/setup-pstack`](./skills/setup-pstack/SKILL.md). it detects the models you have access to and writes pstack Agent profiles to your Paseo config, mapping each role (code, judgment, the review panels) to a model. every skill reads them with `list_profiles` and falls back to sensible defaults when there are none, so you override only what you want. you can edit them in the Paseo app under Agent profiles.
+models are configurable too. type [`/setup-pstack`](./skills/setup-pstack/SKILL.md). it detects the models you have access to and writes pstack Agent profiles to your Paseo config: a code, judgment, and frontier tier, plus any per-role overrides. every skill reads them with `list_profiles` and falls back to sensible defaults when there are none, so you override only what you want. you can edit them in the Paseo app under Agent profiles.
 
-a rerun of `/setup-pstack` keeps any role whose model differs from the default.
+a rerun of `/setup-pstack` keeps your current profiles as its starting point.
 
 ## license
 
