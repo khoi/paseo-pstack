@@ -61,7 +61,9 @@ A long chat accumulates context from the last task. When you change subjects, sa
 /poteto-mode new task. figure out why the cache entry survives logout. don't change any code yet.
 ```
 
-"new task" tells `/poteto-mode` to re-match rather than continue the prior playbook. "don't change any code yet" pins this one to Investigation. Without those two phrases, a mode mid-Feature tends to treat your question as the next feature step.
+"new task" makes `/poteto-mode` close the prior playbook and re-match from scratch. It usually re-matches on its own when your question plainly isn't the next step, so the phrase matters most when your question could pass for one. "don't change any code yet" pins this one to Investigation. Without it, "figure out why" tends to end in a committed fix.
+
+Switch after the current turn finishes. A message sent to a running Paseo tab interrupts it, and the agent drops the step it was on. For unrelated work, open a new tab instead.
 
 ## Give parallel work its own worktree
 
