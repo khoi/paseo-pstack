@@ -70,7 +70,7 @@ to move a role, edit its profile in the app or rerun `/setup-pstack`. the full l
 
 you can skip this step. without `pstack-*` profiles every skill uses these defaults.
 
-**3. check it.** open **Settings → your host → Agent profiles** in the app. you should see the `pstack · …` profiles. edit one there to change the model, thinking level, or permission mode for every role on it. rerun `/setup-pstack` to move roles between models.
+**3. check it.** open **Settings → your host → Agent profiles** in the app. you should see the `pstack · …` profiles. edit one there to change the model, thinking level, or permission mode for its role or panel seat. rerun `/setup-pstack` to move roles between models.
 
 **4. go.** in any Paseo agent:
 
@@ -97,12 +97,12 @@ npx skills update            # pull the latest pstack
 npx skills remove poteto-mode setup-pstack ...   # or remove individual skills
 ```
 
-to drop the model config, delete the `pstack-*` profiles in **Settings → Agent profiles**.
+to drop the model config, delete the `pstack-*` profiles in **Settings → your host → Agent profiles**.
 
 ## troubleshooting
 
 - **"create_agent is not a tool" / delegates never start.** Paseo tools aren't enabled for that agent. see requirements, then restart the agent.
-- **a panel only runs one or two reviewers.** only providers with a `pstack-*` profile get a seat. run `paseo provider ls`, then rerun `/setup-pstack`.
+- **a panel runs fewer reviewers than you expect.** each panel runs one agent per seat profile, like `pstack-interrogate-reviewers-1`. count the seats in **Settings → your host → Agent profiles**, check `paseo provider ls` for an unavailable provider, then rerun `/setup-pstack`.
 - **a model was rejected.** the daemon's model list changed. rerun `/setup-pstack`; it only writes models the daemon reports.
 - **a delegate is stuck waiting.** it's waiting on a permission prompt. answer it in the app, or give its profile a less strict mode.
 - **anything else.** check the daemon log at `~/.paseo/daemon.log`.
@@ -302,7 +302,7 @@ twenty-three short skills, one principle each. `poteto-mode` indexes them inline
 | [foundational-thinking](./skills/principle-foundational-thinking/SKILL.md) | core | Apply before writing logic: choosing core types and data structures, sequencing scaffold-vs-feature work, asking what concurrent actors share. Get the data structures right so downstream code becomes obvious. |
 | [redesign-from-first-principles](./skills/principle-redesign-from-first-principles/SKILL.md) | core | Redesign as if the requirement had been a foundational assumption from day one, instead of bolting it on. |
 | [attack-the-premise](./skills/principle-attack-the-premise/SKILL.md) | core | Apply when two or more fixes that share one premise have failed the same gate. Take a census of which actors hold the imbalance before the next fix, then question the premise instead of writing another fix that assumes it. |
-| [subtract-before-you-add](./skills/principle-subtract-before-you-add/SKILL.md) | core | Remove dead weight, redundant validators, and stub references first, then build on the simpler base. |
+| [subtract-before-you-add](./skills/principle-subtract-before-you-add/SKILL.md) | core | Remove dead code, redundant validators, and stub references first, then build on the simpler base. |
 | [minimize-reader-load](./skills/principle-minimize-reader-load/SKILL.md) | core | Count layers between question and answer, and hidden state in the reader's head; collapse one-caller wrappers and shrink mutable scope. |
 | [outcome-oriented-execution](./skills/principle-outcome-oriented-execution/SKILL.md) | core | Apply during planned rewrites and migrations with explicit phase boundaries. Converge on the target architecture; don't preserve smooth intermediate states with throwaway compatibility code. |
 | [experience-first](./skills/principle-experience-first/SKILL.md) | core | Choose user delight over implementation convenience; ship fewer polished features over more rough ones. |
@@ -314,7 +314,7 @@ twenty-three short skills, one principle each. `poteto-mode` indexes them inline
 | [make-operations-idempotent](./skills/principle-make-operations-idempotent/SKILL.md) | architecture | Converge to the same end state regardless of partial prior runs. |
 | [migrate-callers-then-delete-legacy-apis](./skills/principle-migrate-callers-then-delete-legacy-apis/SKILL.md) | architecture | Migrate callers and delete the old API in the same wave instead of preserving compatibility layers. |
 | [separate-before-serializing-shared-state](./skills/principle-separate-before-serializing-shared-state/SKILL.md) | architecture | Eliminate the sharing first; serialize structurally only when one shared writer is a real invariant. |
-| [prove-it-works](./skills/principle-prove-it-works/SKILL.md) | verification | Apply after completing a task, before declaring done. Verify against the real artifact (run the feature, read the actual value, inspect the diff), not a proxy, self-report, or 'it compiles.'. |
+| [prove-it-works](./skills/principle-prove-it-works/SKILL.md) | verification | Apply after completing a task, before declaring done. Verify against the real artifact (run the feature, read the actual value, inspect the diff), not a proxy, self-report, or 'it compiles.' |
 | [fix-root-causes](./skills/principle-fix-root-causes/SKILL.md) | verification | Trace each symptom to its root cause and fix it there; reproduce first, ask why until you reach it, resist nil-check guards that silence crashes. |
 | [sequence-verifiable-units](./skills/principle-sequence-verifiable-units/SKILL.md) | verification | Apply to multi-step work (sweeps, migrations, runs of similar edits) and to how you stack commits and PRs. Break work into small units that each end in a verifiable state, check each before the next, and order delivery so the sequence proves itself to a reviewer. |
 | [test-behavior-not-implementation](./skills/principle-test-behavior-not-implementation/SKILL.md) | verification | Apply when you write, change, or keep a test. Call the code the way its users do and assert the result they observe against a literal expected value. If the test would still pass when every imported function returns undefined, rewrite the assertion or delete the test. |
