@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 # Setup pstack
 
-Write pstack's model choices as Paseo **Agent profiles** (`daemon.agentProfiles` in `$PASEO_HOME/config.json`, default `~/.paseo/config.json`). pstack finds them by fixed `id`. Three tier profiles cover every role, and an optional override profile moves one role to another model. Skills read them at run time with the Paseo `list_profiles` tool. They also show up in the app under Agent profiles, so the user can edit them there.
+Write pstack's model choices as Paseo **Agent profiles** (`daemon.agentProfiles` in `$PASEO_HOME/config.json`, default `~/.paseo/config.json`). Every role has its own profile, found by a fixed `id`, and every review panel has one numbered profile per seat. Skills read them at run time with the Paseo `list_profiles` tool and fall back to the defaults below only when a profile is missing. They also show up in the app under Agent profiles, so the user can edit them there.
 
 ## Steps
 
@@ -16,37 +16,34 @@ Call the Paseo `list_providers` tool, then `list_models` for `claude` and `codex
 
 ### 2. Load current state
 
-These are the tier profiles. Every role uses its tier unless an override profile exists.
+These are the role profiles and their defaults.
 
-| tier profile | default | roles |
+| role | profile id | default |
 |---|---|---|
-| `pstack-code` | `codex/gpt-6-sol` xhigh | feature, refactoring; bug-fix; perf-issue; hillclimb; how explorer; why investigators; swarm workers |
-| `pstack-judgment` | `claude/claude-opus-5-5` max | judgment and prose; hardest tasks; how explainer; why synthesizer; reflect judgment, divergent, synthesizer |
-| `pstack-frontier` | `codex/gpt-6-astra` max | reflect tooling |
+| feature, refactoring | `pstack-feature-refactoring` | `codex/gpt-6-sol` xhigh |
+| bug-fix | `pstack-bug-fix` | `codex/gpt-6-sol` xhigh |
+| perf-issue | `pstack-perf-issue` | `codex/gpt-6-sol` xhigh |
+| hillclimb | `pstack-hillclimb` | `codex/gpt-6-sol` xhigh |
+| judgment and prose | `pstack-judgment-and-prose` | `claude/claude-opus-5-5` max |
+| hardest tasks | `pstack-hardest-tasks` | `claude/claude-opus-5-5` max |
+| how explorer | `pstack-how-explorer` | `codex/gpt-6-sol` xhigh |
+| how explainer | `pstack-how-explainer` | `claude/claude-opus-5-5` max |
+| why investigators | `pstack-why-investigators` | `codex/gpt-6-sol` xhigh |
+| why synthesizer | `pstack-why-synthesizer` | `claude/claude-opus-5-5` max |
+| reflect judgment, divergent, synthesizer | `pstack-reflect-reviewers` | `claude/claude-opus-5-5` max |
+| reflect tooling | `pstack-reflect-tooling` | `codex/gpt-6-astra` max |
+| swarm workers | `pstack-swarm-workers` | `codex/gpt-6-sol` xhigh |
 
-Panels (arena runners, arena cross-judge pool, architect runners, interrogate reviewers) run one seat on each of the three tiers.
+These are the panels. Each seat is its own profile, `<prefix>-<n>`, and the number of seats sets the panel size. The default is three seats: `-1` `claude/claude-opus-5-5` max, `-2` `codex/gpt-6-astra` max, `-3` `codex/gpt-6-sol` xhigh.
 
-These are the override ids. A profile with one of them takes that role off its tier.
-
-| role | override id |
+| panel | seat prefix |
 |---|---|
-| feature, refactoring | `pstack-feature-refactoring` |
-| bug-fix | `pstack-bug-fix` |
-| perf-issue | `pstack-perf-issue` |
-| hillclimb | `pstack-hillclimb` |
-| judgment and prose | `pstack-judgment-and-prose` |
-| hardest tasks | `pstack-hardest-tasks` |
-| how explorer | `pstack-how-explorer` |
-| how explainer | `pstack-how-explainer` |
-| why investigators | `pstack-why-investigators` |
-| why synthesizer | `pstack-why-synthesizer` |
-| reflect judgment, divergent, synthesizer | `pstack-reflect-reviewers` |
-| reflect tooling | `pstack-reflect-tooling` |
-| swarm workers | `pstack-swarm-workers` |
+| arena runners | `pstack-arena-runners` |
+| arena cross-judge pool | `pstack-arena-cross-judge` |
+| architect runners | `pstack-architect-runners` |
+| interrogate reviewers | `pstack-interrogate-reviewers` |
 
-A panel is overridden by every profile whose `id` starts with its prefix, one seat each: `pstack-arena-runners-<n>`, `pstack-arena-cross-judge-<n>`, `pstack-architect-runners-<n>`, `pstack-interrogate-reviewers-<n>`. When any exist, they replace the three tier seats for that panel.
-
-Call `list_profiles`. Every profile whose `id` starts with `pstack-` is a current choice. Any other `pstack-` id is from a retired role. Drop it. With no pstack profiles, start from the defaults. The current budget is the effort the three tier profiles share, if they share one.
+Call `list_profiles`. Every role profile and panel seat present is a current choice. Every role or panel missing one starts from its default. `pstack-code`, `pstack-judgment`, and `pstack-frontier` are retired tier profiles: when present, use `pstack-code` as the current choice for every missing role whose default is `codex/gpt-6-sol`, `pstack-judgment` for every missing role whose default is `claude/claude-opus-5-5`, `pstack-frontier` for every missing role whose default is `codex/gpt-6-astra`, and the three of them in that order as seats `-1` `pstack-judgment`, `-2` `pstack-frontier`, `-3` `pstack-code` for every panel with no seats, then drop them. Drop any other `pstack-` id as a retired role. The current budget is the effort all role profiles share, if they share one.
 
 ### 3. Budget, map, and confirm
 
@@ -57,9 +54,9 @@ Call `list_profiles`. Every profile whose `id` starts with `pstack-` is a curren
 - `medium — high reasoning`
 - `small — medium reasoning`
 
-**(b) Apply it.** Build the working set from step 2: the current profiles on a re-run, the defaults otherwise. `unlimited` leaves every effort as in that set. `large`, `medium`, and `small` set the `thinkingOptionId` of every profile, overrides and panel seats included, to `xhigh`, `high`, or `medium`. The ladder is `ultracode`/`ultra` > `max` > `xhigh` > `high` > `medium` > `low`. A budget lowers any option above its target, `ultracode` and `ultra` included. `off` never changes. If the target is not among the model's detected `thinkingOptions`, use the model's highest detected option at or below the target, else mark the profile as needing a choice. Codex fast mode (`fast_mode: true`) does not change with the budget. So `small` turns `claude/claude-opus-5-5 max` into `claude/claude-opus-5-5 medium`, and `codex/gpt-6-sol xhigh` into `codex/gpt-6-sol medium`.
+**(b) Apply it.** Build the working set from step 2: the current profiles on a re-run, the defaults otherwise. `unlimited` leaves every effort as in that set. `large`, `medium`, and `small` set the `thinkingOptionId` of every profile, panel seats included, to `xhigh`, `high`, or `medium`. The ladder is `ultracode`/`ultra` > `max` > `xhigh` > `high` > `medium` > `low`. A budget lowers any option above its target, `ultracode` and `ultra` included. `off` never changes. If the target is not among the model's detected `thinkingOptions`, use the model's highest detected option at or below the target, else mark the profile as needing a choice. Codex fast mode (`fast_mode: true`) does not change with the budget. So `small` turns `claude/claude-opus-5-5 max` into `claude/claude-opus-5-5 medium`, and `codex/gpt-6-sol xhigh` into `codex/gpt-6-sol medium`.
 
-**(c) Show the roles and confirm.** Show every tier with its model and roles, then every override and panel seat, marking any model not in the detected set as needing a choice. Also list each profile step 2 dropped. Ask whether to accept as-is, change a tier's model, or move specific roles or panel seats to another model, offering the detected models. Prefer your question tool over free text. Moving a role writes its override profile. Moving it back to its tier deletes the override. A panel override lists every seat, so its length sets the count. `arena cross-judge pool` is also a list, but Arena selects one seat from it whose provider differs from the parent's when possible. `swarm workers` is the default model for every worker unless a race or comparison assigns another model per arm.
+**(c) Show the roles and confirm.** Show every role with its model, then every panel with its seats, marking any model not in the detected set as needing a choice. Also list each profile step 2 dropped. Ask whether to accept as-is, move every role on one model to another, or change specific roles or panel seats, offering the detected models. Prefer your question tool over free text. Changing a panel's seat list sets its count. `arena cross-judge pool` is also a list, but Arena selects one seat from it whose provider differs from the parent's when possible. `swarm workers` is the default model for every worker unless a race or comparison assigns another model per arm.
 
 Also confirm the permission mode each profile launches in. Defaults: `auto` for `claude` and `auto-review` for `codex`. Never pick a read-only or plan mode, since it strips tools subagents need. For the same reason, never write a `plan_mode` feature value other than `false`. Offer each provider's other modes from `list_providers`.
 
@@ -69,35 +66,27 @@ Every model written must be in the detected set, with a detected `thinkingOption
 
 ### 5. Write the profiles
 
-Write the three tier profiles, then one profile per override and panel seat. Use the ids from step 2. Name each `pstack · <tier or role> · <model label> <thinkingOptionId>`, plus ` fast` with fast mode. Leave `notes` out.
+Write one profile per role, then one per panel seat, using the ids from step 2. Always write every role and every seat, even when it matches its default, so the whole configuration is visible in the app. Name each `pstack · <role> · <model label> <thinkingOptionId>`, plus ` fast` with fast mode, and panel seats `pstack · <panel> <n> · <model label> <thinkingOptionId>`. Leave `notes` out.
 
-Read `$PASEO_HOME/config.json`. `daemon.agentProfiles` is a whole list, and a missing key means `[]`: keep every profile whose `id` does not start with `pstack-`, drop every old `pstack-` profile, and append the new ones. Overwrite the whole pstack set so re-runs stay idempotent. Write the file back, then run `paseo reload` so the daemon applies it without a restart. Default shape:
+Read `$PASEO_HOME/config.json`. `daemon.agentProfiles` is a whole list, and a missing key means `[]`: keep every profile whose `id` does not start with `pstack-`, drop every old `pstack-` profile, and append the new ones. Overwrite the whole pstack set so re-runs stay idempotent. Write the file back, then run `paseo reload` so the daemon applies it without a restart. Shape of one role and one seat:
 
 ```json
 [
   {
-    "id": "pstack-code",
-    "name": "pstack · code · GPT-6-Sol xhigh",
+    "id": "pstack-bug-fix",
+    "name": "pstack · bug-fix · GPT-6-Sol xhigh",
     "provider": "codex",
     "model": "gpt-6-sol",
     "thinkingOptionId": "xhigh",
     "modeId": "auto-review"
   },
   {
-    "id": "pstack-judgment",
-    "name": "pstack · judgment · Opus 5.5 max",
+    "id": "pstack-arena-runners-1",
+    "name": "pstack · arena runners 1 · Opus 5.5 max",
     "provider": "claude",
     "model": "claude-opus-5-5",
     "thinkingOptionId": "max",
     "modeId": "auto"
-  },
-  {
-    "id": "pstack-frontier",
-    "name": "pstack · frontier · GPT-6-Astra max",
-    "provider": "codex",
-    "model": "gpt-6-astra",
-    "thinkingOptionId": "max",
-    "modeId": "auto-review"
   }
 ]
 ```

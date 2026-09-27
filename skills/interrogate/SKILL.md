@@ -33,13 +33,13 @@ Write one clear paragraph. If you're unsure about the intent, ask the user befor
 
 ## Step 3, Spawn Reviewers
 
-Launch all reviewers in a single message using Paseo `create_agent`. Use every pstack Agent profile whose `id` starts with `pstack-interrogate-reviewers` (read them with `list_profiles`), one reviewer per profile, extending or shrinking the Reviewer A/B/C labels below to that count. If there are none, use the table: each reviewer's tier profile, else its default.
+Launch all reviewers in a single message using Paseo `create_agent`. Use every pstack Agent profile whose `id` starts with `pstack-interrogate-reviewers` (read them with `list_profiles`), one reviewer per profile, extending or shrinking the Reviewer A/B/C labels below to that count. If there are none, use the table defaults.
 
-| Subagent | Tier profile | Default model |
-|----------|--------------|---------------|
-| Reviewer A | `pstack-judgment` | `claude/claude-opus-5-5` max |
-| Reviewer B | `pstack-frontier` | `codex/gpt-6-astra` max |
-| Reviewer C | `pstack-code` | `codex/gpt-6-sol` xhigh |
+| Subagent | Profile | Default model |
+|----------|---------|---------------|
+| Reviewer A | `pstack-interrogate-reviewers-1` | `claude/claude-opus-5-5` max |
+| Reviewer B | `pstack-interrogate-reviewers-2` | `codex/gpt-6-astra` max |
+| Reviewer C | `pstack-interrogate-reviewers-3` | `codex/gpt-6-sol` xhigh |
 
 For each reviewer:
 - profile: the reviewer's profile from above (`provider/model`, `thinkingOptionId`, `modeId`, and `featureValues` as `features`), or its table default.

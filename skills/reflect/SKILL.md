@@ -30,19 +30,19 @@ For each candidate, check that it belongs to your working directory and contains
 
 One message, three `create_agent` calls, with the profile set as below, in the profile's mode (not a read-only or plan mode). Reviewers need MCP access for context lookups (tickets, chat threads, observability traces referenced in the transcript). A read-only mode strips MCPs.
 
-Each reviewer and the synthesizer name an override profile, a tier profile, and a default. Set the `create_agent` launch (`provider/model`, `thinkingOptionId`, `modeId`, features) from the pstack Agent profiles (read them with `list_profiles`): the role's override profile if it exists, else its tier profile, else the default. Copy the profile's `featureValues` into `features`. If `create_agent` rejects a model, use the default and say so. If it rejects the default, use the closest valid model of the same provider from `list_models`.
+Each reviewer and the synthesizer name a role profile and a default. Set the `create_agent` launch (`provider/model`, `thinkingOptionId`, `modeId`, features) from the role profile in the pstack Agent profiles (read them with `list_profiles`), else the default. Copy the profile's `featureValues` into `features`. If `create_agent` rejects a model, use the default and say so. If it rejects the default, use the closest valid model of the same provider from `list_models`.
 
 | Lens | Override, tier | Default | Prompt template |
 |---|---|---|---|
-| Judgment | `pstack-reflect-reviewers`, `pstack-judgment` | `claude/claude-opus-5-5` max | `references/judgment-reviewer.md` |
-| Tooling | `pstack-reflect-tooling`, `pstack-frontier` | `codex/gpt-6-astra` max | `references/tooling-reviewer.md` |
-| Divergent | `pstack-reflect-reviewers`, `pstack-judgment` | `claude/claude-opus-5-5` max | `references/divergent-reviewer.md` |
+| Judgment | `pstack-reflect-reviewers` | `claude/claude-opus-5-5` max | `references/judgment-reviewer.md` |
+| Tooling | `pstack-reflect-tooling` | `codex/gpt-6-astra` max | `references/tooling-reviewer.md` |
+| Divergent | `pstack-reflect-reviewers` | `claude/claude-opus-5-5` max | `references/divergent-reviewer.md` |
 
 Pass each template verbatim, substituting the transcript path or digest where marked. Reviewers return findings in their final message (read it with `get_agent_activity`).
 
 ### 3. Synthesize
 
-One `create_agent` call, with the `pstack-reflect-reviewers` profile, else `pstack-judgment` (default `claude/claude-opus-5-5` max), in the profile's mode (not a read-only or plan mode). The synthesizer's quality check includes spot-verifying citations, which can require MCP access. A read-only mode strips MCPs. Use `references/synthesizer.md` verbatim, with each reviewer's full output inlined where marked. The synthesizer returns a structured Accepted / Rejected / Backlog list.
+One `create_agent` call, with the `pstack-reflect-reviewers` profile (default `claude/claude-opus-5-5` max), in the profile's mode (not a read-only or plan mode). The synthesizer's quality check includes spot-verifying citations, which can require MCP access. A read-only mode strips MCPs. Use `references/synthesizer.md` verbatim, with each reviewer's full output inlined where marked. The synthesizer returns a structured Accepted / Rejected / Backlog list.
 
 ### 4. Structural enforcement check
 
