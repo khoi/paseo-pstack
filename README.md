@@ -11,7 +11,6 @@ the skills are copied word for word. only the host-specific plumbing changed:
 | cross-model review panels | one Paseo agent per panel seat, mixing Claude Code and Codex |
 | isolated parallel workers | Paseo **worktree workspaces** |
 | "keep going until done" loops | Paseo **heartbeats** |
-| unattended automations (benny) | Paseo **schedules** |
 | resuming past work | Paseo agent history (`paseo ls -a -g`, `paseo logs`) |
 
 because every subagent is a real Paseo agent, you can watch, steer, and approve the whole fleet from the Paseo app on your phone or desktop.
@@ -80,10 +79,6 @@ pstack skills never trigger on their own. you invoke them. Claude Code reads `di
 - **parallel workers get their own worktree.** `/swarm` and the autopilot playbooks create worktree workspaces so workers never share a checkout. archiving the workspace cleans the worktree up.
 - **long runs use heartbeats.** say "i'm going to bed, land the stack" or "keep going until the tests pass". poteto-mode's autonomous run playbook sets a heartbeat that wakes the agent on a schedule until the goal is met, then deletes it. manage them with `paseo heartbeat`.
 - **permission modes come from the profiles.** the defaults are `auto` for Claude Code and `auto-review` for Codex, so delegates don't stall on routine prompts. pick a stricter or looser mode per profile in the app.
-
-## benny: unattended triage and repro
-
-[`automations/benny`](./automations/benny/) turns pstack into a bot that triages bug reports and reproduces confirmed ones with UI evidence. it runs as two Paseo schedules. point an agent at [`automations/benny/FOR_AGENTS.md`](./automations/benny/FOR_AGENTS.md) in the target repo. it copies the pack to `.paseo/automations/benny/`, drafts both schedules for your approval, and creates them paused until a test run passes. manage them with `paseo schedule ls`, `paseo schedule logs <id>`, and `paseo schedule run-once <id>`.
 
 ## update and remove
 
