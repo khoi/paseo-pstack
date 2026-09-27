@@ -32,7 +32,7 @@ One message, three `create_agent` calls, with the profile set as below, in the p
 
 Each reviewer and the synthesizer name a role profile and a default. Set the `create_agent` launch (`provider/model`, `thinkingOptionId`, `modeId`, features) from the role profile in the pstack Agent profiles (read them with `list_profiles`), else the default. Copy the profile's `featureValues` into `features`. If `create_agent` rejects a model, use the default and say so. If it rejects the default, use the closest valid model of the same provider from `list_models`.
 
-| Lens | Override, tier | Default | Prompt template |
+| Lens | Profile | Default | Prompt template |
 |---|---|---|---|
 | Judgment | `pstack-reflect-reviewers` | `claude/claude-opus-5-5` max | `references/judgment-reviewer.md` |
 | Tooling | `pstack-reflect-tooling` | `codex/gpt-6-astra` max | `references/tooling-reviewer.md` |
