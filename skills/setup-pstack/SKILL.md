@@ -28,8 +28,6 @@ These are the role profiles and their defaults.
 | how explainer | `pstack-how-explainer` | `claude/claude-opus-5-5` max |
 | why investigators | `pstack-why-investigators` | `codex/gpt-6-sol` xhigh |
 | why synthesizer | `pstack-why-synthesizer` | `claude/claude-opus-5-5` max |
-| reflect judgment, divergent, synthesizer | `pstack-reflect-reviewers` | `claude/claude-opus-5-5` max |
-| reflect tooling | `pstack-reflect-tooling` | `codex/gpt-6-astra` max |
 | swarm workers | `pstack-swarm-workers` | `codex/gpt-6-sol` xhigh |
 
 These are the panels. Each seat is its own profile, `<prefix>-<n>`, and the number of seats sets the panel size. The default is three seats: `-1` `claude/claude-opus-5-5` max, `-2` `codex/gpt-6-astra` max, `-3` `codex/gpt-6-sol` xhigh.

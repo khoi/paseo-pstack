@@ -1,6 +1,6 @@
 # Make it yours
 
-poteto-mode is one person's style. The machinery underneath, playbooks, routing, model roles, works just as well wearing yours. This page covers generating a personal mode, capturing lessons from a session, and generating a project verification skill.
+poteto-mode is one person's style. The machinery underneath, playbooks, routing, model roles, works just as well wearing yours. This page covers generating a personal mode, generating a project verification skill, and writing technical docs.
 
 ## Generate your own mode with `/automate-me`
 
@@ -17,16 +17,6 @@ Run it again whenever your habits drift:
 ```
 
 Update mode mines only the history since the skill last changed. It keeps rules you haven't contradicted, revises the ones with new evidence, and adds sections only for genuinely new patterns.
-
-## Capture a session's lessons with `/reflect`
-
-Right after a task that taught you something, run:
-
-```text
-/reflect that took way too long. capture what we learned so the next run doesn't repeat it.
-```
-
-[`/reflect`](../../skills/reflect/SKILL.md) sends the transcript to three parallel reviewers, then a synthesizer sorts the proposals into `Accepted`, `Rejected`, and `Backlog` and waits for your approval before any skill changes. Approve a proposal only if it would change a future decision. One weird session is an anecdote, not a rule.
 
 ## Generate a verification skill
 

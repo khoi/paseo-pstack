@@ -8,10 +8,10 @@ Here's what you'll learn:
 2. [Route work through `/poteto-mode`](./02-poteto-mode.md). Give it a goal and watch it pick a playbook.
 3. [Understand the code](./03-understand.md). `/how`, `/why`, `/teach`, and `/recall` before you edit anything.
 4. [Design the change](./04-design.md). `/architect`, `/arena`, `/swarm`, and `/interrogate` before code locks in a shape.
-5. [Build and clean the change](./05-build-and-clean.md). The build playbooks, `/tdd`, `/unslop`, and `/no-comments`.
+5. [Build and clean the change](./05-build-and-clean.md). The build playbooks, `/tdd`, and `/unslop`.
 6. [Verify and open a PR](./06-verify-and-ship.md). Prove behavior on the real app, then open a focused PR.
 7. [Steer with principle names](./08-principles.md). The 23 names that redirect an agent mid-task.
-8. [Make it yours](./09-make-it-yours.md). Your own mode and lessons from prior work.
+8. [Make it yours](./09-make-it-yours.md). Your own mode, verification skills, and technical docs.
 9. [Recipes and pitfalls](./10-recipes-and-pitfalls.md). Prompts to copy and mistakes to skip.
 
 Read the pages in order the first time. After that, each page stands alone.

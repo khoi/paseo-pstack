@@ -33,8 +33,7 @@ YOUR REQUEST
     |   |   +-- Reproduce -> investigate -> fix -> verify
     |   |   +-- [S] how / why
     |   |   +-- [S] architect (cross-function changes)
-    |   |   +-- [A] Scoped implementation delegate
-    |   |   |   +-- [S] poteto-agent
+    |   |   +-- Main agent implements
     |   |   +-- [S] tdd (cheap local test path)
     |   |   +-- [P] sequence-verifiable-units
     |   |   +-- [B] opening-a-pr
@@ -42,9 +41,7 @@ YOUR REQUEST
     |   +-- [B] feature
     |   |   +-- [S] how
     |   |   +-- [S] architect
-    |   |   +-- [A] Scoped implementation delegate
-    |   |   |   +-- [S] poteto-agent
-    |   |   +-- [S] arena (alternative implementations)
+    |   |   +-- Main agent implements
     |   |   +-- [S] interrogate (contested design)
     |   |   +-- [P] model-the-domain
     |   |   +-- [P] separate-before-serializing-shared-state
@@ -54,8 +51,7 @@ YOUR REQUEST
     |   +-- [B] refactoring
     |   |   +-- [S] how
     |   |   +-- [S] architect (cross-function changes)
-    |   |   +-- [A] Scoped implementation delegate
-    |   |   |   +-- [S] poteto-agent
+    |   |   +-- Main agent implements
     |   |   +-- [S] figure-it-out (large changes)
     |   |   +-- [P] model-the-domain
     |   |   +-- [P] foundational-thinking
@@ -76,7 +72,6 @@ YOUR REQUEST
     |   |
     |   +-- [B] opening-a-pr
     |       +-- [S] deslop (external, if installed)
-    |       +-- [S] no-comments
     |       +-- [S] technical-writing
     |       +-- [S] unslop
     |       +-- [S] interrogate (PR-opening delegates)
@@ -90,7 +85,6 @@ YOUR REQUEST
     |   +-- Contested design -------------> interrogate
     |   +-- Prose ------------------------> unslop
     |   +-- Docs / PR / commit prose ------> technical-writing
-    |   +-- Before review ----------------> no-comments
     |   +-- Auditable long work ----------> show-me-your-work
     |   +-- Large task / no playbook ------> figure-it-out
     |
@@ -154,18 +148,6 @@ YOUR REQUEST
     |   |   +-- [S] why (shared-record investigators)
     |   |   +-- [S] unslop
     |   |
-    |   +-- [S] blast-radius
-    |   |   +-- [S] why
-    |   |   +-- [S] arena (broad changes)
-    |   |   +-- [S] unslop
-    |   |
-    |   +-- [S] no-comments
-    |   |   +-- [A] 1 read-only comment reviewer
-    |   |   |   +-- [S] comment-sicko
-    |   |   |       +-- [S] how / why (unclear claims)
-    |   |   +-- [P] fix-root-causes
-    |   |   +-- [P] redesign-from-first-principles
-    |   |
     |   +-- [S] technical-writing
     |   |   +-- [S] unslop
     |   |
@@ -184,14 +166,6 @@ YOUR REQUEST
     |   +-- [S] show-me-your-work
     |   |   +-- [S] unslop
     |   |   +-- [A] 1 trail reviewer on another provider
-    |   |   +-- [P] encode-lessons-in-structure
-    |   |
-    |   +-- [S] reflect
-    |   |   +-- [A] 3 reviewers in parallel
-    |   |   |   +-- Judgment / tooling / divergent
-    |   |   +-- Then [A] 1 synthesizer
-    |   |   +-- Parent applies approved skill edits
-    |   |   +-- External skill authoring when needed
     |   |   +-- [P] encode-lessons-in-structure
     |   |
     |   +-- [S] automate-me
@@ -312,7 +286,7 @@ Use your provider's skill invocation syntax, such as `/poteto-mode` or `$poteto-
 
 The mode selects a playbook, copies its steps into a task list, and invokes supporting skills as needed. It stays active across turns until you opt out. Say "new task" to explicitly close the current playbook and select another.
 
-Most skills require explicit invocation. Once invoked, the mode loads its dependencies itself. The delegate skills `poteto-agent` and `comment-sicko` are also discoverable by name.
+Most skills require explicit invocation. Once invoked, the mode loads its dependencies itself. The delegate skill `poteto-agent` is also discoverable by name.
 
 For a specific procedure, invoke the skill directly:
 
@@ -346,13 +320,11 @@ Principles guide decisions, skills provide reusable procedures, and playbooks se
 | [why](./skills/why/SKILL.md) | Investigate decisions and history across available sources. |
 | [teach](./skills/teach/SKILL.md) | Combine how and why into a plain explanation. |
 | [recall](./skills/recall/SKILL.md) | Reconstruct recent work from history and current evidence. |
-| [blast-radius](./skills/blast-radius/SKILL.md) | Find what a change could break and prove its safety assumptions. |
 | [architect](./skills/architect/SKILL.md) | Compare interfaces and module designs before implementation. |
 | [arena](./skills/arena/SKILL.md) | Compare competing attempts and synthesize the strongest result. |
 | [swarm](./skills/swarm/SKILL.md) | Distribute work across parallel workers and aggregate results. |
 | [interrogate](./skills/interrogate/SKILL.md) | Review a change with multiple independent models. |
 | [tdd](./skills/tdd/SKILL.md) | Prove a regression test fails before the fix and passes after. |
-| [no-comments](./skills/no-comments/SKILL.md) | Run comment review and fix accepted findings. |
 | [figure-it-out](./skills/figure-it-out/SKILL.md) | Design a custom workflow for large or unmatched tasks. |
 | [show-me-your-work](./skills/show-me-your-work/SKILL.md) | Keep and independently review a decision trail. |
 | [create-verification-skill](./skills/create-verification-skill/SKILL.md) | Generate and prove a project-specific verification harness. |
@@ -360,11 +332,10 @@ Principles guide decisions, skills provide reusable procedures, and playbooks se
 | [unslop](./skills/unslop/SKILL.md) | Remove formulaic language and filler. |
 | [bro](./skills/bro/SKILL.md) | Restate the last response plainly. |
 | [technical-writing](./skills/technical-writing/SKILL.md) | Structure and edit technical prose. |
-| [reflect](./skills/reflect/SKILL.md) | Review a session and propose improvements to skills. |
 | [automate-me](./skills/automate-me/SKILL.md) | Create a personal mode from recurring working preferences. |
 | [setup-pstack](./skills/setup-pstack/SKILL.md) | Configure model profiles by role and panel seat. |
 
-Two skills serve as delegate entry points. [poteto-agent](./skills/poteto-agent/SKILL.md) loads the full mode before working. [comment-sicko](./skills/comment-sicko/SKILL.md) performs read-only comment review for `no-comments`.
+[poteto-agent](./skills/poteto-agent/SKILL.md) serves as the delegate entry point and loads the full mode before working.
 
 ## Execution
 
