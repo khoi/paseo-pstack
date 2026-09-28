@@ -165,6 +165,243 @@ the full rules and playbooks live in [`skills/poteto-mode/SKILL.md`](./skills/po
 
 [`/poteto-mode`](./skills/poteto-mode/SKILL.md) works extremely well with paseo heartbeats. you can make paseo work for many hours without sacrificing rigor.
 
+## routing
+
+`poteto-mode` selects a playbook and invokes skills through both playbook steps and cross-cutting rules. Skills can invoke other skills and reference principles directly. You can also invoke a skill without entering the mode.
+
+`[B]` = playbook, `[S]` = skill, `[P]` = principle. Conditional references run only when their stated condition applies. Principle names omit the `principle-` prefix. The graph shows instruction dependencies, not automatic function calls.
+
+```text
+YOUR REQUEST
+|
++-- Invoke any [S] directly
+|   +-- Follow that skill's dependencies below
+|
++-- [S] poteto-mode
+    |
+    +-- PLAYBOOK ROUTING: choose by task
+    |   |
+    |   +-- [B] investigation
+    |   |   +-- [S] how
+    |   |   +-- [S] why
+    |   |   +-- [S] unslop
+    |   |   +-- Code change needed? -> bug-fix / feature
+    |   |
+    |   +-- [B] bug-fix
+    |   |   +-- Reproduce -> investigate -> fix -> verify
+    |   |   +-- [S] how / why
+    |   |   +-- [S] architect (cross-function changes)
+    |   |   +-- [S] poteto-agent
+    |   |   +-- [S] tdd (cheap local test path)
+    |   |   +-- [P] sequence-verifiable-units
+    |   |   +-- [B] opening-a-pr
+    |   |
+    |   +-- [B] feature
+    |   |   +-- [S] how
+    |   |   +-- [S] architect
+    |   |   +-- [S] poteto-agent / arena
+    |   |   +-- [S] interrogate (contested design)
+    |   |   +-- [P] model-the-domain
+    |   |   +-- [P] separate-before-serializing-shared-state
+    |   |   +-- [P] sequence-verifiable-units
+    |   |   +-- [B] opening-a-pr
+    |   |
+    |   +-- [B] refactoring
+    |   |   +-- [S] how
+    |   |   +-- [S] architect (cross-function changes)
+    |   |   +-- [S] poteto-agent
+    |   |   +-- [S] figure-it-out (large changes)
+    |   |   +-- [P] model-the-domain
+    |   |   +-- [P] foundational-thinking
+    |   |   +-- [P] redesign-from-first-principles
+    |   |   +-- [P] subtract-before-you-add
+    |   |   +-- [P] laziness-protocol
+    |   |   +-- [P] migrate-callers-then-delete-legacy-apis
+    |   |   +-- [P] prove-it-works
+    |   |   +-- [P] minimize-reader-load
+    |   |   +-- [P] sequence-verifiable-units
+    |   |   +-- [B] opening-a-pr
+    |   |
+    |   +-- [B] prototype
+    |   |   +-- Build alternatives -> observe -> choose
+    |   |   +-- [P] exhaust-the-design-space
+    |   |   +-- Real implementation?
+    |   |       +-- [B] feature / [S] architect
+    |   |
+    |   +-- [B] opening-a-pr
+    |       +-- [S] deslop (external, if installed)
+    |       +-- [S] no-comments
+    |       +-- [S] technical-writing
+    |       +-- [S] unslop
+    |       +-- [S] interrogate (PR-opening delegates)
+    |
+    +-- DIRECT SKILL ROUTING: cross-cutting rules
+    |   |
+    |   +-- Understand a nontrivial change -> how
+    |   +-- Design across functions ------> architect
+    |   +-- Parallel work ----------------> swarm
+    |   +-- Competing implementations ----> arena
+    |   +-- Contested design -------------> interrogate
+    |   +-- Prose ------------------------> unslop
+    |   +-- Docs / PR / commit prose ------> technical-writing
+    |   +-- Before review ----------------> no-comments
+    |   +-- Auditable long work ----------> show-me-your-work
+    |   +-- Large task / no playbook ------> figure-it-out
+    |
+    +-- SKILL DEPENDENCIES
+    |   |
+    |   +-- [S] poteto-agent
+    |   |   +-- Reads poteto-mode again
+    |   |       +-- Same routing and principles
+    |   |
+    |   +-- [S] how
+    |   |   +-- Explorer / explainer agents
+    |   |
+    |   +-- [S] why
+    |   |   +-- Evidence-source investigators
+    |   |   +-- Synthesizer
+    |   |
+    |   +-- [S] architect
+    |   |   +-- [S] how
+    |   |   +-- [S] why (ownership / layering changes)
+    |   |   +-- [S] arena
+    |   |   +-- [S] interrogate (design pressure)
+    |   |   +-- [P] exhaust-the-design-space
+    |   |   +-- [P] foundational-thinking
+    |   |   +-- [P] outcome-oriented-execution
+    |   |   +-- [P] redesign-from-first-principles
+    |   |   +-- [P] fix-root-causes
+    |   |   +-- [P] subtract-before-you-add
+    |   |
+    |   +-- [S] arena
+    |   |   +-- Candidates -> cross-judge -> synthesize
+    |   |   +-- [P] separate-before-serializing-shared-state
+    |   |   +-- [P] laziness-protocol
+    |   |   +-- [P] redesign-from-first-principles
+    |   |   +-- [P] prove-it-works
+    |   |
+    |   +-- [S] swarm
+    |   |   +-- Isolated workers -> aggregate report
+    |   |
+    |   +-- [S] interrogate
+    |   |   +-- Independent reviewers -> lead verdict
+    |   |
+    |   +-- [S] teach
+    |   |   +-- [S] how / why / unslop
+    |   |
+    |   +-- [S] recall
+    |   |   +-- Chat history + [S] why
+    |   |   +-- [S] unslop
+    |   |
+    |   +-- [S] blast-radius
+    |   |   +-- [S] why
+    |   |   +-- [S] arena (broad changes)
+    |   |   +-- [S] unslop
+    |   |
+    |   +-- [S] no-comments
+    |   |   +-- [S] comment-sicko
+    |   |   |   +-- [S] how / why (unclear claims)
+    |   |   +-- [P] fix-root-causes
+    |   |   +-- [P] redesign-from-first-principles
+    |   |
+    |   +-- [S] technical-writing
+    |   |   +-- [S] unslop
+    |   |
+    |   +-- [S] figure-it-out
+    |   |   +-- Reads poteto-mode's principles index
+    |   |   +-- [S] architect (one-way design choices)
+    |   |   +-- [S] show-me-your-work
+    |   |   +-- [P] prove-it-works
+    |   |   +-- [P] never-block-on-the-human
+    |   |   +-- [P] foundational-thinking
+    |   |   +-- [P] laziness-protocol
+    |   |   +-- [P] separate-before-serializing-shared-state
+    |   |   +-- [P] sequence-verifiable-units
+    |   |   +-- [P] encode-lessons-in-structure
+    |   |
+    |   +-- [S] show-me-your-work
+    |   |   +-- [S] unslop
+    |   |   +-- Independent trail reviewer
+    |   |   +-- [P] encode-lessons-in-structure
+    |   |
+    |   +-- [S] reflect
+    |   |   +-- Reviewers -> synthesizer -> skill edits
+    |   |   +-- External skill authoring when needed
+    |   |   +-- [P] encode-lessons-in-structure
+    |   |
+    |   +-- [S] automate-me
+    |   |   +-- Reads poteto-mode as a shape reference
+    |   |   +-- External skill authoring if installed
+    |   |   +-- [S] unslop
+    |   |
+    |   +-- [S] setup-pstack
+    |   |   +-- Writes agent role / panel profiles
+    |   |   +-- Offers create-verification-skill
+    |   |
+    |   +-- [S] create-verification-skill
+    |   |   +-- Generates and proves a project skill
+    |   |   +-- Suggests maintain-verification-skill
+    |   |
+    |   +-- [S] maintain-verification-skill
+    |   |   +-- Reads an existing project verify skill
+    |   |   +-- Source readers + live verification
+    |   |
+    |   +-- [S] tdd ------> failing test -> fix -> rerun
+    |   +-- [S] unslop ---> writing rules
+    |   +-- [S] bro ------> plain-language restatement
+    |
+    +-- PRINCIPLE ROUTING: read relevant leaf skills
+        |
+        +-- Core
+        |   +-- laziness-protocol
+        |   +-- foundational-thinking
+        |   +-- redesign-from-first-principles
+        |   +-- attack-the-premise
+        |   +-- subtract-before-you-add
+        |   +-- minimize-reader-load
+        |   +-- outcome-oriented-execution
+        |   +-- experience-first
+        |   +-- exhaust-the-design-space
+        |   +-- build-the-lever
+        |
+        +-- Architecture
+        |   +-- model-the-domain
+        |   +-- boundary-discipline
+        |   +-- type-system-discipline
+        |   +-- make-operations-idempotent
+        |   +-- migrate-callers-then-delete-legacy-apis
+        |   +-- separate-before-serializing-shared-state
+        |
+        +-- Verification
+        |   +-- prove-it-works
+        |   +-- fix-root-causes
+        |   +-- sequence-verifiable-units
+        |   +-- test-behavior-not-implementation
+        |
+        +-- Delegation
+        |   +-- guard-the-context-window
+        |   +-- never-block-on-the-human
+        |
+        +-- Meta
+        |   +-- encode-lessons-in-structure
+        |
+        +-- References between principles and skills
+            |
+            +-- type-system-discipline
+            |   +-- [P] boundary-discipline
+            |   +-- [P] encode-lessons-in-structure
+            |
+            +-- sequence-verifiable-units
+            |   +-- [P] prove-it-works
+            |   +-- [P] build-the-lever
+            |
+            +-- prove-it-works
+                +-- [S] show-me-your-work
+                    (large / complex audited work)
+```
+
+`figure-it-out` can create custom workflows for large or unmatched tasks beyond the six bundled playbooks.
+
 ## skills
 
 [`/poteto-mode`](./skills/poteto-mode/SKILL.md) runs most of these for you when a step needs them (`how`, `why`, `architect`, `arena`, `swarm`, `interrogate`, `unslop`, `no-comments`, `technical-writing`, `tdd`, and the principles). the table below is for when you want one directly:
