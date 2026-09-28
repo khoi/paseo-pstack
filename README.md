@@ -1,8 +1,8 @@
 # paseo-pstack
 
-[pstack](#about-pstack) is poteto's set of rigorous engineering skills: a mode skill with 23 playbooks, multi-model review panels, parallel fan-out, and 23 principles. this repo ports it to run natively on [Paseo](https://paseo.sh) with **Claude Code** and **Codex**.
+[pstack](#about-pstack) is poteto's set of rigorous engineering skills: a mode skill with 6 playbooks, multi-model review panels, parallel fan-out, and 23 principles. this repo ports it to run natively on [Paseo](https://paseo.sh) with **Claude Code** and **Codex**.
 
-the skills are copied word for word. only the host-specific plumbing changed:
+this fork keeps six focused playbooks and uses Paseo for agent execution:
 
 | pstack needs | Paseo provides |
 |---|---|
@@ -19,7 +19,7 @@ because every subagent is a real Paseo agent, you can watch, steer, and approve 
 
 - a running Paseo daemon (desktop app, or `paseo daemon start`). see [paseo.sh](https://paseo.sh).
 - Claude Code and/or Codex installed and signed in on the daemon's machine. check with `paseo provider ls`.
-- **Paseo tools enabled for agents.** pstack drives subagents, workspaces, heartbeats, and schedules through them. in the app, open **Settings → your host → Orchestration → Enable Paseo tools**. or set it in `~/.paseo/config.json`:
+- **Paseo tools enabled for agents.** pstack drives subagents, workspaces, and heartbeats through them. in the app, open **Settings → your host → Orchestration → Enable Paseo tools**. or set it in `~/.paseo/config.json`:
 
   ```json
   { "daemon": { "mcp": { "injectIntoAgents": true } } }
@@ -52,8 +52,6 @@ it lists the models your daemon can launch, asks for a reasoning budget, shows t
 |---|---|---|
 | `pstack-feature-refactoring` | `codex/gpt-6-sol`, xhigh | feature, refactoring |
 | `pstack-bug-fix` | `codex/gpt-6-sol`, xhigh | bug-fix |
-| `pstack-perf-issue` | `codex/gpt-6-sol`, xhigh | perf |
-| `pstack-hillclimb` | `codex/gpt-6-sol`, xhigh | hillclimb |
 | `pstack-judgment-and-prose` | `claude/claude-opus-5-5`, max | judgment and prose |
 | `pstack-hardest-tasks` | `claude/claude-opus-5-5`, max | hardest tasks |
 | `pstack-how-explorer` | `codex/gpt-6-sol`, xhigh | how explorer |
@@ -86,8 +84,7 @@ pstack skills never trigger on their own. you invoke them. Claude Code reads `di
 
 - **delegates show up as subagents** of the agent you prompted. open one to watch it, answer its permission prompts, or steer it. you're notified when each one finishes; nothing polls.
 - **panels mix providers.** `/interrogate`, `/arena`, and `/architect` launch one agent per seat profile, such as `pstack-interrogate-reviewers-1`, `-2`, and `-3`. add or remove seats to change the panel size.
-- **parallel workers get their own worktree.** `/swarm` and the autopilot playbooks create worktree workspaces so workers never share a checkout. archiving the workspace cleans the worktree up.
-- **long runs use heartbeats.** say "i'm going to bed, land the stack" or "keep going until the tests pass". poteto-mode's autonomous run playbook sets a heartbeat that wakes the agent on a schedule until the goal is met, then deletes it. manage them with `paseo heartbeat`.
+- **parallel workers get their own worktree.** `/swarm` creates worktree workspaces so workers never share a checkout. archiving the workspace cleans the worktree up.
 - **permission modes come from the profiles.** the defaults are `auto` for Claude Code and `auto-review` for Codex, so delegates don't stall on routine prompts. pick a stricter or looser mode per profile in the app.
 
 ## update and remove
@@ -109,7 +106,7 @@ to drop the model config, delete the `pstack-*` profiles in **Settings → your 
 
 ## about pstack
 
-pstack is by [poteto](https://x.com/poteto) (Lauren Tan), MIT licensed. the rest of this readme is poteto's, adapted only where it named the old host.
+pstack is by [poteto](https://x.com/poteto) (Lauren Tan), MIT licensed. the rest of this readme is adapted from poteto's for this fork.
 
 i'm [poteto](https://x.com/poteto). i'm not a president or ceo, but i've worked with millions of lines of code at Meta and Netflix. i'm also on the react core team where i help build and maintain react compiler.
 
@@ -123,9 +120,9 @@ there's a growing sense that ai writes too much slop code. i agree. i don't want
 
 fork it. improve it. make it yours. PRs are welcome! 
 
-new here? the [pstack guide](./docs/guide/README.md) walks you through a first real task, from setup and prompting through verification and overnight runs.
+new here? the [pstack guide](./docs/guide/README.md) walks you through a first real task, from setup and prompting through verification and opening a PR.
 
-the other skills are situational; the mode skill uses them for you as needed. out of the box the mode splits work by model strength: code delegates (feature, refactoring, bug fix, perf, hillclimb) go to gpt-6-sol on codex, while the hardest changes, prose, and judgment go to opus 5.5 on claude code. the default panel is opus 5.5 / astra / sol. [`/setup-pstack`](./skills/setup-pstack/SKILL.md) changes any of it.
+the other skills are situational; the mode skill uses them for you as needed. out of the box the mode splits work by model strength: code delegates (feature, refactoring, bug fix) go to gpt-6-sol on codex, while the hardest changes, prose, and judgment go to opus 5.5 on claude code. the default panel is opus 5.5 / astra / sol. [`/setup-pstack`](./skills/setup-pstack/SKILL.md) changes any of it.
 
 ## usage
 
@@ -133,46 +130,24 @@ use [`/poteto-mode`](./skills/poteto-mode/SKILL.md) at the start of a task. it r
 
 ### just use [`/poteto-mode`](./skills/poteto-mode/SKILL.md)
 
-this skill is the main shortcut. i use it whenever i need the agent to do rigorous engineering work. it comes with twenty-three playbooks:
+this skill is the main shortcut. i use it whenever i need the agent to do rigorous engineering work. it comes with six playbooks:
 
 ```
 /poteto-mode this pr has a subtle bug where the scroll drifts every 750ms even when idle. repro
 first, then fix and verify.
 ```
 
-```
-/poteto-mode i'm going to bed. land the stack even if ci flakes. i want everything merged by
-morning.
-```
-
 <details>
-<summary>the twenty-three playbooks</summary>
+<summary>the six playbooks</summary>
 
 | playbook | for |
 |---|---|
 | [investigation](./skills/poteto-mode/playbooks/investigation.md) | a read-only question. how does x work, why was y built this way, are we sure. |
 | [bug fix](./skills/poteto-mode/playbooks/bug-fix.md) | reproduce a defect, root-cause it, and fix with runtime evidence. |
-| [perf](./skills/poteto-mode/playbooks/perf-issue.md) | trace a measured slowness and improve it against a baseline. |
-| [hillclimb](./skills/poteto-mode/playbooks/hillclimb.md) | sustained, scientific improvement of one metric against a target, looping hypotheses with before/after measurement and one commit per accepted win. |
-| [runtime forensics](./skills/poteto-mode/playbooks/runtime-forensics.md) | diagnose a live symptom (leak, idle-cpu spin, glitch) from instrumentation. |
-| [trace forensics](./skills/poteto-mode/playbooks/trace-forensics.md) | diagnose a captured profiling artifact (cpuprofile, trace, spindump, heap snapshot). |
 | [feature](./skills/poteto-mode/playbooks/feature.md) | new or changed behavior, built from a named data shape. |
 | [refactoring](./skills/poteto-mode/playbooks/refactoring.md) | a behavior-preserving change to structure or shape. |
 | [prototype](./skills/poteto-mode/playbooks/prototype.md) | a throwaway sketch to make a design or behavioral decision cheaply, or to settle an empirical fork by observing it. |
-| [visual parity](./skills/poteto-mode/playbooks/visual-parity.md) | pixel-exact ui equivalence between two implementations. |
-| [authoring a skill](./skills/poteto-mode/playbooks/authoring-a-skill.md) | writing or editing a SKILL.md. |
-| [eval](./skills/poteto-mode/playbooks/eval.md) | test how a skill or prompt change affects agent behavior, blinded. |
-| [babysit](./skills/poteto-mode/playbooks/babysit.md) | drive a pr or a stack to merge-ready: conflicts, review threads, ci. |
-| [shipping](./skills/poteto-mode/playbooks/shipping.md) | independently verify a green stack, then land the contiguous verified run bottom-up through github by default or origin when available. |
-| [autonomous run](./skills/poteto-mode/playbooks/autonomous-run.md) | drive a long task to completion without stopping. |
-| [orchestrate](./skills/poteto-mode/playbooks/orchestrate.md) | a standing project handed to one coordinator chat: multi-day, many stacked prs, fleets of subagents. |
-| [autopilot-full](./skills/poteto-mode/playbooks/autopilot-full.md) | run independent prs to merged with one owner per pr and a root swarm verdict on each round, from the code-ready head on. |
-| [autopilot-stack](./skills/poteto-mode/playbooks/autopilot-stack.md) | build and verify one linear base-branch stack for the operator to review and land. |
-| [session pickup](./skills/poteto-mode/playbooks/session-pickup.md) | resume or take over a prior agent's in-flight work. |
-| [pause safely](./skills/poteto-mode/playbooks/pause-safely.md) | suspend in-flight work cleanly so it can be resumed later. |
-| [multi-phase plan](./skills/poteto-mode/playbooks/multi-phase-plan.md) | work that spans phases or stacked PRs. |
-| [worktree cleanup](./skills/poteto-mode/playbooks/worktree-cleanup.md) | reclaim disk by pruning merged or abandoned worktrees and stale ios simulators, safety-gated. |
-| [opening a pr](./skills/poteto-mode/playbooks/opening-a-pr.md) | open a ready pr from small ordered commits with a conventional commits title and a briefing-style body. invoked at the end of every other playbook. |
+| [opening a pr](./skills/poteto-mode/playbooks/opening-a-pr.md) | open a ready pr from small ordered commits with a conventional commits title and a briefing-style body. used for completed code changes. |
 
 </details>
 
@@ -245,18 +220,9 @@ mostly i type [`/poteto-mode`](./skills/poteto-mode/SKILL.md) at the start of a 
 ```
 bug fix:           /poteto-mode this pr has a subtle bug where the scroll drifts every 750ms even
                    when idle. repro first, then fix and verify.
-perf:              /poteto-mode a big list takes a second or two to load even though we virtualize.
-                   run a cpu trace and tell me why.
 feature:           /poteto-mode build a small feature behind a feature flag. verify it really works.
 prototype:         /poteto-mode build two prototypes of the markdown renderer so we can compare.
                    spawn an agent for each.
-multi-phase:       /poteto-mode open source these skills as a plugin. nothing internal leaks, work
-                   in a temp dir, show me the dependency graph first.
-overnight run:     /poteto-mode i'm going to bed. land the stack even if ci flakes. i want
-                   everything merged by morning.
-babysit:           /poteto-mode check on pr 123. anything outstanding?
-visual parity:     /poteto-mode the row spacing is too tall when this flag is on. the second image
-                   is correct. repro and fix until it matches.
 figure it out:     /poteto-mode i'm stepping away. migrate every caller from the synchronous store
                    to the new async one, keeping behavior identical. i want to trust it was done
                    right when i'm back.
@@ -327,9 +293,9 @@ twenty-three short skills, one principle each. `poteto-mode` indexes them inline
 a few things `poteto-mode` references but doesn't bundle:
 
 - `/deslop` and the `deslop` skill.
+- `/create-skill`, used when installed for skill authoring.
 - control skills for CLIs and TUIs, and for browser, Electron, web (for example `agent-browser`).
-- `/create-skill`. if you have another `/babysit` skill, inside `poteto-mode` the [babysit playbook](./skills/poteto-mode/playbooks/babysit.md) supersedes it for pr-status requests.
-- the [`paseo`](https://github.com/getpaseo/paseo/tree/main/skills/paseo) skill, which pstack uses to drive subagents, workspaces, heartbeats, and schedules. install it with `npx skills add getpaseo/paseo`.
+- the [`paseo`](https://github.com/getpaseo/paseo/tree/main/skills/paseo) skill, which pstack uses to drive subagents, workspaces, and heartbeats. install it with `npx skills add getpaseo/paseo`.
 
 install them alongside pstack if you want the full set.
 

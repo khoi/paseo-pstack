@@ -22,8 +22,6 @@ These are the role profiles and their defaults.
 |---|---|---|
 | feature, refactoring | `pstack-feature-refactoring` | `codex/gpt-6-sol` xhigh |
 | bug-fix | `pstack-bug-fix` | `codex/gpt-6-sol` xhigh |
-| perf-issue | `pstack-perf-issue` | `codex/gpt-6-sol` xhigh |
-| hillclimb | `pstack-hillclimb` | `codex/gpt-6-sol` xhigh |
 | judgment and prose | `pstack-judgment-and-prose` | `claude/claude-opus-5-5` max |
 | hardest tasks | `pstack-hardest-tasks` | `claude/claude-opus-5-5` max |
 | how explorer | `pstack-how-explorer` | `codex/gpt-6-sol` xhigh |
