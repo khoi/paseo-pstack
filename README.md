@@ -169,7 +169,7 @@ the full rules and playbooks live in [`skills/poteto-mode/SKILL.md`](./skills/po
 
 `poteto-mode` selects a playbook and invokes skills through both playbook steps and cross-cutting rules. Skills can invoke other skills and reference principles directly. You can also invoke a skill without entering the mode.
 
-`[B]` = playbook, `[S]` = skill, `[P]` = principle. Conditional references run only when their stated condition applies. Principle names omit the `principle-` prefix. The graph shows instruction dependencies, not automatic function calls.
+`[B]` = playbook, `[S]` = skill, `[P]` = principle, `[A]` = subagent. Conditional references run only when their stated condition applies. Principle names omit the `principle-` prefix. The graph shows instruction dependencies, not automatic function calls. `[A]` marks a separate agent launch; reading a skill or principle does not itself create an agent. Counts describe the prescribed workflow, with panel sizes configurable through profiles.
 
 ```text
 YOUR REQUEST
@@ -191,7 +191,8 @@ YOUR REQUEST
     |   |   +-- Reproduce -> investigate -> fix -> verify
     |   |   +-- [S] how / why
     |   |   +-- [S] architect (cross-function changes)
-    |   |   +-- [S] poteto-agent
+    |   |   +-- [A] Scoped implementation delegate
+    |   |   |   +-- [S] poteto-agent
     |   |   +-- [S] tdd (cheap local test path)
     |   |   +-- [P] sequence-verifiable-units
     |   |   +-- [B] opening-a-pr
@@ -199,7 +200,9 @@ YOUR REQUEST
     |   +-- [B] feature
     |   |   +-- [S] how
     |   |   +-- [S] architect
-    |   |   +-- [S] poteto-agent / arena
+    |   |   +-- [A] Scoped implementation delegate
+    |   |   |   +-- [S] poteto-agent
+    |   |   +-- [S] arena (alternative implementations)
     |   |   +-- [S] interrogate (contested design)
     |   |   +-- [P] model-the-domain
     |   |   +-- [P] separate-before-serializing-shared-state
@@ -209,7 +212,8 @@ YOUR REQUEST
     |   +-- [B] refactoring
     |   |   +-- [S] how
     |   |   +-- [S] architect (cross-function changes)
-    |   |   +-- [S] poteto-agent
+    |   |   +-- [A] Scoped implementation delegate
+    |   |   |   +-- [S] poteto-agent
     |   |   +-- [S] figure-it-out (large changes)
     |   |   +-- [P] model-the-domain
     |   |   +-- [P] foundational-thinking
@@ -255,16 +259,23 @@ YOUR REQUEST
     |   |       +-- Same routing and principles
     |   |
     |   +-- [S] how
-    |   |   +-- Explorer / explainer agents
+    |   |   +-- Simple question
+    |   |   |   +-- [A] 1 explainer (explores and explains)
+    |   |   +-- Complex question
+    |   |       +-- [A] 2-4 explorers in parallel
+    |   |       +-- Then [A] 1 explainer
     |   |
     |   +-- [S] why
-    |   |   +-- Evidence-source investigators
-    |   |   +-- Synthesizer
+    |   |   +-- [A] Source-control investigator
+    |   |   +-- [A] Available-source investigators (parallel)
+    |   |   +-- Then [A] 1 synthesizer
     |   |
     |   +-- [S] architect
     |   |   +-- [S] how
     |   |   +-- [S] why (ownership / layering changes)
     |   |   +-- [S] arena
+    |   |   |   +-- [A] Design candidates (architect profiles)
+    |   |   |   +-- Then [A] 1 cross-judge
     |   |   +-- [S] interrogate (design pressure)
     |   |   +-- [P] exhaust-the-design-space
     |   |   +-- [P] foundational-thinking
@@ -274,23 +285,31 @@ YOUR REQUEST
     |   |   +-- [P] subtract-before-you-add
     |   |
     |   +-- [S] arena
-    |   |   +-- Candidates -> cross-judge -> synthesize
+    |   |   +-- [A] N candidates in parallel (default 3)
+    |   |   +-- Then [A] 1 read-only cross-judge
+    |   |   +-- Parent selects, combines, and verifies
     |   |   +-- [P] separate-before-serializing-shared-state
     |   |   +-- [P] laziness-protocol
     |   |   +-- [P] redesign-from-first-principles
     |   |   +-- [P] prove-it-works
     |   |
     |   +-- [S] swarm
-    |   |   +-- Isolated workers -> aggregate report
+    |   |   +-- [A] N workers in parallel
+    |   |   |   +-- Own worktree unless local access needed
+    |   |   +-- Parent aggregates results
     |   |
     |   +-- [S] interrogate
-    |   |   +-- Independent reviewers -> lead verdict
+    |   |   +-- [A] 1 reviewer per seat (default 3)
+    |   |   |   +-- Same prompt, independent reviews
+    |   |   +-- Parent judges and synthesizes findings
     |   |
     |   +-- [S] teach
     |   |   +-- [S] how / why / unslop
     |   |
     |   +-- [S] recall
-    |   |   +-- Chat history + [S] why
+    |   |   +-- [A] Parallel history readers
+    |   |   |   +-- Skip fan-out for 1-2 chats
+    |   |   +-- [S] why (shared-record investigators)
     |   |   +-- [S] unslop
     |   |
     |   +-- [S] blast-radius
@@ -299,8 +318,9 @@ YOUR REQUEST
     |   |   +-- [S] unslop
     |   |
     |   +-- [S] no-comments
-    |   |   +-- [S] comment-sicko
-    |   |   |   +-- [S] how / why (unclear claims)
+    |   |   +-- [A] 1 read-only comment reviewer
+    |   |   |   +-- [S] comment-sicko
+    |   |   |       +-- [S] how / why (unclear claims)
     |   |   +-- [P] fix-root-causes
     |   |   +-- [P] redesign-from-first-principles
     |   |
@@ -321,15 +341,19 @@ YOUR REQUEST
     |   |
     |   +-- [S] show-me-your-work
     |   |   +-- [S] unslop
-    |   |   +-- Independent trail reviewer
+    |   |   +-- [A] 1 trail reviewer on another provider
     |   |   +-- [P] encode-lessons-in-structure
     |   |
     |   +-- [S] reflect
-    |   |   +-- Reviewers -> synthesizer -> skill edits
+    |   |   +-- [A] 3 reviewers in parallel
+    |   |   |   +-- Judgment / tooling / divergent
+    |   |   +-- Then [A] 1 synthesizer
+    |   |   +-- Parent applies approved skill edits
     |   |   +-- External skill authoring when needed
     |   |   +-- [P] encode-lessons-in-structure
     |   |
     |   +-- [S] automate-me
+    |   |   +-- [A] Parallel history miners (when mining)
     |   |   +-- Reads poteto-mode as a shape reference
     |   |   +-- External skill authoring if installed
     |   |   +-- [S] unslop
@@ -344,7 +368,8 @@ YOUR REQUEST
     |   |
     |   +-- [S] maintain-verification-skill
     |   |   +-- Reads an existing project verify skill
-    |   |   +-- Source readers + live verification
+    |   |   +-- [A] 1 read-only reader per feature
+    |   |   +-- Parent drives live verification
     |   |
     |   +-- [S] tdd ------> failing test -> fix -> rerun
     |   +-- [S] unslop ---> writing rules
@@ -399,6 +424,8 @@ YOUR REQUEST
                 +-- [S] show-me-your-work
                     (large / complex audited work)
 ```
+
+Subagents run through Paseo. Skills with role profiles resolve their model settings from `pstack-*` profiles, with documented defaults when profiles are missing. Playbook delegates use `poteto-agent`; workflow skills such as `how`, `arena`, and `interrogate` supply their own role prompts. The parent receives completion notifications and handles results according to the invoking skill.
 
 `figure-it-out` can create custom workflows for large or unmatched tasks beyond the six bundled playbooks.
 
