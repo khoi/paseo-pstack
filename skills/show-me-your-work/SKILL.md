@@ -62,9 +62,9 @@ At the end of the run, before handing back, check the log told the truth. Read t
 
 Correct the log, not the story. The audit never edits or removes a row, even an invented one. When a row records neither a real decision nor a real action, or its claim or evidence is wrong, add a row that supersedes it with what actually happened and a pointer that resolves. This audit does not check rows outside this run's stretches. If this run's own work shows one of them is wrong, supersede it like any wrong call.
 
-## Cross-model review of the trail
+## Judge review of the trail
 
-Before handing back, spawn a subagent (`create_agent`) on a different provider from the one that did the work. Self-review is not a substitute. The subagent reads the audit trail and the run's transcript, then flags what the user should pay attention to. Not a redo of the work, a scan for what's suboptimal or risky.
+Before handing back, read `list_profiles` and spawn one `pstack-judge` subagent (`create_agent`), always `codex/gpt-6-astra` with `thinkingOptionId: xhigh`, `modeId: full-access`, and `notifyOnFinish: true`. If Astra xhigh is unavailable, report the blocked review without substituting another model or effort. Self-review is not a substitute. The subagent reads the audit trail and the run's transcript, then flags what the user should pay attention to. Not a redo of the work, a scan for what's suboptimal or risky.
 
 - Decisions logged with weak or absent evidence.
 - Verification steps skipped or claimed without proof in the transcript.

@@ -11,7 +11,7 @@ Engineering workflows for Paseo, organized into six playbooks, reusable skills, 
 - `[P]` Principle, with the `principle-` prefix omitted.
 - `[A]` Separate subagent launch.
 
-Conditions in parentheses determine when a route applies. Reading a skill or principle does not itself launch an agent. Panel sizes are configurable through profiles.
+Conditions in parentheses determine when a route applies. Reading a skill or principle does not itself launch an agent. Explorer and Worker counts follow task scope. Each review uses one Astra xhigh Judge.
 
 ```text
 YOUR REQUEST
@@ -110,7 +110,7 @@ YOUR REQUEST
     |   |   +-- [S] how
     |   |   +-- [S] why (ownership / layering changes)
     |   |   +-- [S] arena
-    |   |   |   +-- [A] Design candidates (architect profiles)
+    |   |   |   +-- [A] Design candidates (Worker profile)
     |   |   |   +-- Then [A] 1 cross-judge
     |   |   +-- [S] interrogate (design pressure)
     |   |   +-- [P] exhaust-the-design-space
@@ -135,8 +135,8 @@ YOUR REQUEST
     |   |   +-- Parent aggregates results
     |   |
     |   +-- [S] interrogate
-    |   |   +-- [A] 1 reviewer per seat (default 3)
-    |   |   |   +-- Same prompt, independent reviews
+    |   |   +-- [A] 1 Judge (Astra xhigh)
+    |   |   |   +-- Intent, rubric, and code-quality lens
     |   |   +-- Parent judges and synthesizes findings
     |   |
     |   +-- [S] teach
@@ -165,7 +165,7 @@ YOUR REQUEST
     |   |
     |   +-- [S] show-me-your-work
     |   |   +-- [S] unslop
-    |   |   +-- [A] 1 trail reviewer on another provider
+    |   |   +-- [A] 1 trail Judge (Astra xhigh)
     |   |   +-- [P] encode-lessons-in-structure
     |   |
     |   +-- [S] automate-me
@@ -175,7 +175,7 @@ YOUR REQUEST
     |   |   +-- [S] unslop
     |   |
     |   +-- [S] setup-pstack
-    |   |   +-- Writes agent role / panel profiles
+    |   |   +-- Writes Explorer, Worker, and Judge profiles
     |   |   +-- Offers create-verification-skill
     |   |
     |   +-- [S] create-verification-skill
@@ -270,9 +270,9 @@ Invoke `setup-pstack` in a Paseo agent:
 /setup-pstack
 ```
 
-It detects available models, asks for a reasoning budget, and writes `pstack-*` Agent profiles to the Paseo config. Each role has a profile; review panels have one numbered profile per seat. Profiles control model, reasoning effort, and permission mode.
+It detects available models and writes three Agent profiles: `pstack-explorer` and `pstack-worker` default to Sol xhigh; `pstack-judge` always uses Astra xhigh. Explorer and Worker model settings are configurable. Each review launches one Judge; candidate counts are independent of profile count.
 
-Edit profiles under **Settings → your host → Agent profiles**, or rerun setup. Keep profile IDs unchanged because skills look them up by ID. Without profiles, skills use their documented defaults. See [setup-pstack](./skills/setup-pstack/SKILL.md) for the role IDs and defaults.
+Edit profiles under **Settings → your host → Agent profiles**, or rerun setup. Keep the three profile IDs unchanged because skills look them up by ID. Judge model and effort remain fixed. Without profiles, skills use their documented defaults. See [setup-pstack](./skills/setup-pstack/SKILL.md) for the role IDs and defaults.
 
 ## Usage
 
@@ -323,7 +323,7 @@ Principles guide decisions, skills provide reusable procedures, and playbooks se
 | [architect](./skills/architect/SKILL.md) | Compare interfaces and module designs before implementation. |
 | [arena](./skills/arena/SKILL.md) | Compare competing attempts and synthesize the strongest result. |
 | [swarm](./skills/swarm/SKILL.md) | Distribute work across parallel workers and aggregate results. |
-| [interrogate](./skills/interrogate/SKILL.md) | Review a change with multiple independent models. |
+| [interrogate](./skills/interrogate/SKILL.md) | Review a change with one independent Astra xhigh Judge. |
 | [tdd](./skills/tdd/SKILL.md) | Prove a regression test fails before the fix and passes after. |
 | [figure-it-out](./skills/figure-it-out/SKILL.md) | Design a custom workflow for large or unmatched tasks. |
 | [show-me-your-work](./skills/show-me-your-work/SKILL.md) | Keep and independently review a decision trail. |
@@ -333,7 +333,7 @@ Principles guide decisions, skills provide reusable procedures, and playbooks se
 | [bro](./skills/bro/SKILL.md) | Restate the last response plainly. |
 | [technical-writing](./skills/technical-writing/SKILL.md) | Structure and edit technical prose. |
 | [automate-me](./skills/automate-me/SKILL.md) | Create a personal mode from recurring working preferences. |
-| [setup-pstack](./skills/setup-pstack/SKILL.md) | Configure model profiles by role and panel seat. |
+| [setup-pstack](./skills/setup-pstack/SKILL.md) | Configure Explorer and Worker; keep Judge fixed at Astra xhigh. |
 
 [poteto-agent](./skills/poteto-agent/SKILL.md) serves as the delegate entry point and loads the full mode before working.
 
@@ -360,7 +360,7 @@ The required Paseo reference skill is installed in the setup steps above.
 | Symptom | Check |
 |---|---|
 | `create_agent` is unavailable | Enable Paseo tools and restart the agent. |
-| A panel has fewer reviewers than expected | Check numbered seat profiles and `paseo provider ls`. |
+| Judge cannot launch | Check Astra xhigh availability with `paseo provider ls` and model discovery; no alternate judge is selected. |
 | A configured model is rejected | Rerun `setup-pstack` to detect available models. |
 | A delegate is waiting | Inspect its activity and permission prompts in the app. |
 

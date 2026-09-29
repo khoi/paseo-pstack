@@ -1,12 +1,12 @@
 ---
 name: interrogate
-description: "Use for \"interrogate\", \"adversarial review\", \"multi-model review\", \"challenge this\", \"stress test this code\", \"find blind spots\", or \"tear this apart\". Multiple LLM reviewers challenge changes from independent angles."
+description: "Use for \"interrogate\", \"adversarial review\", \"challenge this\", \"stress test this code\", \"find blind spots\", or \"tear this apart\". One Astra xhigh Judge challenges changes against the stated intent."
 disable-model-invocation: true
 ---
 
 # Interrogate
 
-Spawn one reviewer per configured model to adversarially review code changes. Each model gets the same prompt and rubric. The adversarial signal comes from model diversity, not assigned personas.
+Spawn one independent Judge to adversarially review code changes against the intent and rubric.
 
 The deliverable is a synthesized verdict. Do NOT auto-apply changes.
 
@@ -18,11 +18,11 @@ Identify what to review from context:
 - If on a feature branch, run `git diff main...HEAD` (or the appropriate base branch) for the full changeset
 - If the user's message references recent work, gather the relevant files
 
-Package the diff (or file contents) plus any surrounding context files the reviewers need to understand the code.
+Package the diff (or file contents) plus any surrounding context files the Judge needs to understand the code.
 
 ## Step 2, State the Intent
 
-Before spawning reviewers, state the intent explicitly. Derive this from:
+Before spawning the Judge, state the intent explicitly. Derive this from:
 
 - The user's message
 - Commit messages
@@ -31,21 +31,9 @@ Before spawning reviewers, state the intent explicitly. Derive this from:
 
 Write one clear paragraph. If you're unsure about the intent, ask the user before proceeding.
 
-## Step 3, Spawn Reviewers
+## Step 3, Spawn the Judge
 
-Launch all reviewers in a single message using Paseo `create_agent`. Use every pstack Agent profile whose `id` starts with `pstack-interrogate-reviewers` (read them with `list_profiles`), one reviewer per profile, extending or shrinking the Reviewer A/B/C labels below to that count. If there are none, use the table defaults.
-
-| Subagent | Profile | Default model |
-|----------|---------|---------------|
-| Reviewer A | `pstack-interrogate-reviewers-1` | `claude/claude-opus-5-5` max |
-| Reviewer B | `pstack-interrogate-reviewers-2` | `codex/gpt-6-astra` max |
-| Reviewer C | `pstack-interrogate-reviewers-3` | `codex/gpt-6-sol` xhigh |
-
-For each reviewer:
-- profile: the reviewer's profile from above (`provider/model`, `thinkingOptionId`, `modeId`, and `featureValues` as `features`), or its table default.
-- read-only: say so in the prompt (no edits)
-
-If `create_agent` rejects a configured entry, run that reviewer on the table default of its provider and say so. Providers go by prefix: `claude/` and `codex/` (Reviewer B's default for `codex`). With no provider match, use Reviewer A's default. If it rejects a table default, check the valid models with `list_models`, pick the closest equivalent (prefer the highest-reasoning tier of the same provider), spawn with it, and open a separate PR to update the default table. Do not block the review on the model issue. Never treat an alias entry as a rejected model or apply either fallback to it.
+Read `list_profiles` and launch one Paseo `create_agent` using `pstack-judge`. Always set provider/model to `codex/gpt-6-astra`, `settings.thinkingOptionId` to `xhigh`, `settings.modeId` to `full-access`, and `notifyOnFinish` to `true`. Keep the task read-only in the prompt. If Astra xhigh is unavailable, report the blocked review without substituting another model or effort.
 
 Read `references/reviewer-prompt.md` and fill in the template with:
 1. The stated intent
@@ -53,17 +41,11 @@ Read `references/reviewer-prompt.md` and fill in the template with:
 3. The review rubric from `references/rubric.md`
 4. The code-quality lens from `references/code-quality-review.md`
 
-The same filled template goes to all reviewers, so every model applies the code-quality lens.
+Give the filled template to the Judge, including the code-quality lens.
 
-## Step 4, Synthesize
+## Step 4, Validate Findings
 
-As results come back, build a unified picture:
-
-1. **Parse all findings** from the reviewers
-2. **Identify consensus**. Findings raised by 2+ models independently are highest signal.
-3. **Identify lone-model findings**. Still worth reading, but weight accordingly.
-4. **Deduplicate**. Different models may describe the same issue differently. Merge these and note which models raised it.
-5. **Note disagreements**. If one model flags something and another explicitly says the opposite, that's useful context for the verdict.
+Read the Judge's findings, trace each claimed failure through the code, and deduplicate overlapping issues. Weight evidence and impact rather than model agreement. Distinguish confirmed issues from uncertainties.
 
 ## Step 5, Lead Judgment
 
@@ -79,7 +61,7 @@ Categorize every finding using these buckets:
 - **Dismissed**. Wrong, nitpicky, or missing context. Brief explanation why.
 
 For each finding, include:
-- Which model(s) raised it
+- The supporting code or evidence
 - The category (act on / consider / noted / dismissed)
 - A one-line rationale for the categorization
 
@@ -90,14 +72,14 @@ Present the verdict in this structure:
 ### Intent
 > [The stated intent paragraph from Step 2]
 
-### Reviewers
-- Reviewer [label]: [model name], [N findings] (one bullet per reviewer)
+### Judge
+GPT-6-Astra xhigh: [N findings]
 
 ### Act On
-[Findings that should be addressed. For each: description, which models raised it, why it matters.]
+[Findings that should be addressed. For each: description, supporting evidence, why it matters.]
 
 ### Consider
-[Findings worth thinking about. For each: description, which models raised it, tradeoff involved.]
+[Findings worth thinking about. For each: description, supporting evidence, tradeoff involved.]
 
 ### Noted
 [Valid but low-priority. Brief list.]
@@ -105,5 +87,5 @@ Present the verdict in this structure:
 ### Dismissed
 [Rejected findings with brief rationale.]
 
-### Agreement Map
-[Where did models agree, where did they diverge, and what does the pattern of agreement/disagreement tell us?]
+### Uncertainties
+[Claims that could not be verified and the evidence needed to settle them.]

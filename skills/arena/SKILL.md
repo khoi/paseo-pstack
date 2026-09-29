@@ -25,7 +25,7 @@ The N candidates will receive the same prompt, so the prompt is the contract.
 
 1. State the artifact each candidate is producing.
 2. Derive the rubric. State what success looks like for *this* task, then turn it into 3-6 concrete gradeable criteria. The rubric is the picker's tool in Phase D. Candidates only see the task.
-3. Pick the runners. Use every pstack Agent profile whose `id` starts with `pstack-arena-runners` (read them with `list_profiles`), one runner per profile. If there are none, run one seat each on `claude/claude-opus-5-5` max, `codex/gpt-6-astra` max, and `codex/gpt-6-sol` xhigh. Copy each profile's `provider/model`, `thinkingOptionId`, `modeId`, and `featureValues` into `create_agent`. If `create_agent` rejects a configured entry, run that seat on its provider's default and say so: `claude/claude-opus-5-5` max for `claude`, `codex/gpt-6-astra` max for `codex`. With no provider match, use `claude/claude-opus-5-5` max. If it rejects a default, use the closest valid model of the same provider from `list_models`. Spawn more when the arena covers multiple design directions. Same model N times when the work is generation-bound rather than judgment-sensitive.
+3. Pick the runners. Read `list_profiles` and use `pstack-worker`, default `codex/gpt-6-sol` xhigh. Launch three candidates by default, or the count requested by the user, with distinct design approaches and isolated outputs. Candidate count is independent of profile count. Copy the worker profile's model, effort, and features; set `settings.modeId` to `full-access` for Codex or `bypassPermissions` for Claude. Explicit model-comparison tasks may name a model per candidate.
 4. Assign output paths. Each candidate writes to its own location (a git worktree where possible, otherwise `/tmp/arena-<slug>/candidate-<n>/`), per the **separate-before-serializing-shared-state** principle skill.
 
 ## Phase B: Fan out
@@ -38,7 +38,7 @@ If a candidate fails to produce output, proceed with N-1 and note the dropout in
 
 ## Phase C: Cross-judge
 
-After all Phase B candidates complete, choose one profile from the pstack Agent profiles whose `id` starts with `pstack-arena-cross-judge`. If there are none, choose from `claude/claude-opus-5-5` max, `codex/gpt-6-astra` max, and `codex/gpt-6-sol` xhigh. Prefer a different provider from the parent's. Spawn one read-only judge subagent on that model, and say it is read-only in its prompt. It sees the rubric and the candidates by path label, scores each criterion, and recommends a base with rationale. It runs in parallel with the parent's reading in Phase D, not with the candidates themselves. Don't spawn the judge while candidates are still writing.
+After all Phase B candidates complete, launch exactly one Judge using `pstack-judge`: always `codex/gpt-6-astra`, `thinkingOptionId: xhigh`, and `modeId: full-access`. Read the profile with `list_profiles`, but never change the Judge model or effort or select by provider diversity. If Astra xhigh is unavailable, report the blocked judgment step. Say read-only in the prompt. The Judge sees the rubric and candidates by path label, scores each criterion, and recommends a base with rationale. It runs in parallel with the parent's reading in Phase D, after the candidates finish writing.
 
 ## Phase D: Pick a base
 

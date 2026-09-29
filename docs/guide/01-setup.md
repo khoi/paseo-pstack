@@ -1,6 +1,6 @@
 # Set up pstack
 
-In this page you install the skills, pick which models pstack uses, and run your first task. Setup is one command plus a short conversation.
+In this page you install the skills, configure Explorer and Worker models, and run your first task. Setup is one command plus a short conversation.
 
 ## Install the skills
 
@@ -21,11 +21,11 @@ Run:
 /setup-pstack
 ```
 
-[`/setup-pstack`](../../skills/setup-pstack/SKILL.md) detects the models you have access to, asks for a reasoning budget, shows you each role (code delegates, judgment, the review panels), and asks what you want. Answer the questions. It writes the pstack Agent profiles (the `pstack-*` entries in `~/.paseo/config.json`), which every pstack skill reads with `list_profiles`. Every role has its own profile, such as `pstack-bug-fix` or `pstack-hardest-tasks`, so moving a role means editing one profile.
+[`/setup-pstack`](../../skills/setup-pstack/SKILL.md) detects available models and maintains three profiles: `pstack-explorer` for investigation, `pstack-worker` for implementation and design candidates, and `pstack-judge` for explanation, synthesis, and review. Explorer and Worker default to Sol xhigh and retain existing choices on reruns. Judge always uses Astra xhigh.
 
 With no pstack profiles, every role keeps the skill's default. To restore the defaults, delete the `pstack-*` profiles. A rerun of `/setup-pstack` starts from your current profiles.
 
-The review panels have one numbered profile per seat, such as `pstack-arena-runners-1` and `pstack-arena-runners-2`. One subagent runs per profile, so the count sets the panel size. Setup also configures `swarm workers`, the default model for every `/swarm` worker unless a race names a model for each arm.
+Each review launches one Judge. Arena launches three Worker candidates by default; request a different candidate count per task. Setup removes retired role-specific and numbered profiles.
 
 ## Accept the verification offer, or don't
 
