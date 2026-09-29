@@ -27,8 +27,18 @@ The N candidates will receive the same prompt, so the prompt is the contract.
 
 1. State the design proposal each candidate is producing.
 2. Derive the rubric. State what success looks like for *this* task, then turn it into 3-6 concrete gradeable criteria. The rubric is the picker's tool in Phase D. Candidates only see the task.
-3. Pick the runners. Read `list_profiles` and use `pstack-worker`, default `codex/gpt-6.1-sol` xhigh. Launch three candidates by default, or the count requested by the user, with distinct design approaches and read-only responses. Candidate count is independent of profile count. Copy the worker profile's model, effort, and features; set `settings.modeId` to `full-access` for Codex or `bypassPermissions` for Claude. Explicit model-comparison tasks may name a model per candidate.
+3. Pick the runners. Read `list_profiles` and launch one candidate per Arena Runner profile below by default. For an explicit candidate count, cycle through runners 1, 2, 3 until that count is reached. Explicit per-candidate model choices override this rotation. Each candidate independently explores the same brief and returns a read-only proposal.
 4. Assign candidate labels. Candidates share read-only access to the relevant source and return their proposals in their responses. No candidate worktrees or output files.
+
+| Profile ID | Default provider/model | Effort |
+|---|---|---|
+| `pstack-arena-runner-1` | `codex/gpt-6-astra` | `xhigh` |
+| `pstack-arena-runner-2` | `codex/gpt-6.1-sol` | `xhigh` |
+| `pstack-arena-runner-3` | `claude/claude-opus-5-5` | `xhigh` |
+
+Copy each profile's `provider/model`, `thinkingOptionId`, and `featureValues` into `create_agent.provider`, `settings.thinkingOptionId`, and `settings.features`. Set `settings.modeId` to `full-access` for Codex or `bypassPermissions` for Claude unless the user requested another mode.
+
+A missing profile uses that seat's default, never `pstack-worker`. Validate missing-profile defaults or explicit model overrides with `list_models`; if unavailable, report the seat as a dropout rather than silently substituting a model.
 
 ## Phase B: Fan out
 
@@ -36,7 +46,7 @@ Spawn all N Paseo subagents in one message with `create_agent` and `notifyOnFini
 
 Each rationale names the alternatives the candidate considered and what it rejected.
 
-If a candidate fails to produce output, proceed with N-1 and note the dropout in the synthesis record.
+If a candidate fails to produce output, proceed with the remaining candidates and note the dropout in the synthesis record. If none finish, report the arena as blocked. Architect still requires at least two structurally distinct candidates before synthesis.
 
 ## Phase C: Cross-judge
 

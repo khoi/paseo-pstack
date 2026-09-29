@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 # Architect
 
-Design before implementing. Sketch types, function signatures, class shapes, and module boundaries with `not implemented` bodies and pseudocode. Synthesize across distinct design approaches, then the parent fills in code against the chosen sketch when implementation is in scope. If implementation proves the sketch wrong, throw it out and redesign.
+Design before implementing. Sketch types, function signatures, class shapes, and module boundaries with `not implemented` bodies and pseudocode. Synthesize across model perspectives and distinct design approaches, then the parent fills in code against the chosen sketch when implementation is in scope. If implementation proves the sketch wrong, throw it out and redesign.
 
 ## Start
 
@@ -30,7 +30,7 @@ Skip Phase A only when the work is genuinely greenfield with no surrounding syst
 
 Run the **arena** skill with the design-sketch task and the Phase A grounding artifacts. Pass `references/runner-prompt.md` as each runner's prompt. Each candidate returns a read-only design proposal shaped per `references/rationale-template.md`. Candidates inspect source and return sketches as text; they do not write files, implement, or spawn agents.
 
-Use Arena's `pstack-worker` profile for design candidates and its single `pstack-judge` for evaluation. Judge always uses Astra xhigh. Choose distinct design approaches for the candidates; profile count does not set candidate count.
+Use Arena's `pstack-arena-runner-1`, `pstack-arena-runner-2`, and `pstack-arena-runner-3` profiles for design candidates. The defaults are Astra, GPT-6.1 Sol, and Opus 5.5, all xhigh. Follow Arena's runner selection, candidate-count overrides, and missing-profile defaults. Use its single `pstack-judge` for evaluation, always Astra xhigh.
 
 Design it twice. Require at least two structurally distinct candidates before synthesis, even when the first looks sufficient. This is the **exhaust-the-design-space** principle skill made concrete. Whole-shape alternatives, not point fixes inside one shape.
 

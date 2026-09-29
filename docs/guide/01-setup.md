@@ -1,6 +1,6 @@
 # Set up pstack
 
-In this page you install the skills, configure Explorer and Worker models, and run your first task. Setup is one command plus a short conversation.
+In this page you install the skills, configure Explorer, Worker, and Arena Runner models, and run your first task. Setup is one command plus a short conversation.
 
 ## Install the skills
 
@@ -21,11 +21,22 @@ Run:
 /setup-pstack
 ```
 
-[`/setup-pstack`](../../skills/setup-pstack/SKILL.md) detects available models and maintains three profiles: `pstack-explorer` for investigation, `pstack-worker` for implementation and design candidates, and `pstack-judge` for explanation, synthesis, and review. Explorer and Worker default to GPT-6.1 Sol xhigh and retain existing choices on reruns. Judge always uses Astra xhigh.
+[`/setup-pstack`](../../skills/setup-pstack/SKILL.md) detects available models and maintains six profiles:
+
+| Profile | Default model | Role |
+|---|---|---|
+| `pstack-explorer` | GPT-6.1 Sol xhigh | Investigation |
+| `pstack-worker` | GPT-6.1 Sol xhigh | Delegated implementation and swarm tasks |
+| `pstack-judge` | Astra xhigh, fixed | Explanation, synthesis, and review |
+| `pstack-arena-runner-1` | Astra xhigh | Arena and architect candidate 1 |
+| `pstack-arena-runner-2` | GPT-6.1 Sol xhigh | Arena and architect candidate 2 |
+| `pstack-arena-runner-3` | Opus 5.5 xhigh | Arena and architect candidate 3 |
+
+Explorer, Worker, and Arena Runners retain existing choices on reruns. Judge always uses Astra xhigh. Migrating from the three-profile setup adds the three Arena Runners with their distinct defaults.
 
 With no pstack profiles, every role keeps the skill's default. To restore the defaults, delete the `pstack-*` profiles. A rerun of `/setup-pstack` starts from your current profiles.
 
-Each review launches one Judge. Arena launches three Worker candidates by default; request a different candidate count per task. Setup removes retired role-specific and numbered profiles.
+Each review launches one Judge. Arena and architect launch one candidate per Arena Runner by default; request a different candidate count or per-candidate models per task. Setup keeps the six IDs above and removes retired pstack profiles.
 
 ## Optional project verification
 

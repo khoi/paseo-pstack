@@ -28,10 +28,10 @@ When implementation is in scope, the parent proceeds straight from the synthesiz
 
 ```mermaid
 flowchart LR
-    A[One task] --> B[Worker candidates]
-    B --> C[Candidate 1]
-    B --> D[Candidate 2]
-    B --> E[Candidate N]
+    A[One task] --> B[Arena Runners]
+    B --> C[Astra xhigh]
+    B --> D[GPT-6.1 Sol xhigh]
+    B --> E[Opus 5.5 xhigh]
     C --> F[Cross-judge]
     D --> F
     E --> F
@@ -40,7 +40,7 @@ flowchart LR
     H --> I[Verify]
 ```
 
-Candidates use the Worker profile from [`/setup-pstack`](../../skills/setup-pstack/SKILL.md). Request more or fewer candidates per task; three is the default:
+Arena and architect use `pstack-arena-runner-1`, `pstack-arena-runner-2`, and `pstack-arena-runner-3` from [`/setup-pstack`](../../skills/setup-pstack/SKILL.md). Their defaults are Astra, GPT-6.1 Sol, and Opus 5.5, all xhigh. Three candidates is the default, one per runner. Request more or fewer candidates per task; the runners repeat in order for larger counts. Explicit per-candidate models override that rotation:
 
 ```text
 /arena this, 5 candidates. the cache key format is expensive to change later.

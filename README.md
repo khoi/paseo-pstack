@@ -263,9 +263,9 @@ Invoke `setup-pstack` in a Paseo agent:
 /setup-pstack
 ```
 
-It detects available models and writes three Agent profiles: `pstack-explorer` and `pstack-worker` default to GPT-6.1 Sol xhigh; `pstack-judge` always uses Astra xhigh. Explorer and Worker model settings are configurable. Each review launches one Judge; candidate counts are independent of profile count.
+It detects available models and writes six Agent profiles. `pstack-explorer` and `pstack-worker` default to GPT-6.1 Sol xhigh; `pstack-judge` always uses Astra xhigh. `pstack-arena-runner-1`, `pstack-arena-runner-2`, and `pstack-arena-runner-3` default to Astra, GPT-6.1 Sol, and Opus 5.5, all xhigh. Arena and architect launch one candidate per runner by default, followed by one Judge. Explorer, Worker, and Arena Runner model settings are configurable.
 
-Edit profiles under **Settings → your host → Agent profiles**, or rerun setup. Keep the three profile IDs unchanged because skills look them up by ID. Judge model and effort remain fixed. Without profiles, skills use their documented defaults. See [setup-pstack](./skills/setup-pstack/SKILL.md) for the role IDs and defaults.
+Edit profiles under **Settings → your host → Agent profiles**, or rerun setup. Keep the six profile IDs unchanged because skills look them up by ID. Judge model and effort remain fixed. Without profiles, skills use their documented defaults. See [setup-pstack](./skills/setup-pstack/SKILL.md) for the role IDs and defaults.
 
 ## Usage
 
