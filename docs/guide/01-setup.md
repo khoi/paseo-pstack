@@ -21,7 +21,7 @@ Run:
 /setup-pstack
 ```
 
-[`/setup-pstack`](../../skills/setup-pstack/SKILL.md) detects the models you have access to, asks for a reasoning budget, shows you each role (code delegates, judgment, the review panels), and asks what you want. Answer the questions. It writes the pstack Agent profiles (the `pstack-*` entries in `~/.paseo/config.json`), which every pstack skill reads with `list_profiles`. Every role has its own profile, such as `pstack-bug-fix` or `pstack-hardest-tasks`, so moving a role means editing one profile.
+[`/setup-pstack`](../../skills/setup-pstack/SKILL.md) detects the models you have access to, asks for a reasoning budget, shows you each role (explorers, judgment, the review panels), and asks what you want. Answer the questions. It writes the pstack Agent profiles (the `pstack-*` entries in `~/.paseo/config.json`), which every pstack skill reads with `list_profiles`. Every role has its own profile, such as `pstack-how-explorer` or `pstack-why-investigators`, so moving a role means editing one profile.
 
 With no pstack profiles, every role keeps the skill's default. To restore the defaults, delete the `pstack-*` profiles. A rerun of `/setup-pstack` starts from your current profiles.
 

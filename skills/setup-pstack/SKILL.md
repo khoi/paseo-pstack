@@ -20,10 +20,7 @@ These are the role profiles and their defaults.
 
 | role | profile id | default |
 |---|---|---|
-| feature, refactoring | `pstack-feature-refactoring` | `codex/gpt-6-sol` xhigh |
-| bug-fix | `pstack-bug-fix` | `codex/gpt-6-sol` xhigh |
 | judgment and prose | `pstack-judgment-and-prose` | `claude/claude-opus-5-5` max |
-| hardest tasks | `pstack-hardest-tasks` | `claude/claude-opus-5-5` max |
 | how explorer | `pstack-how-explorer` | `codex/gpt-6-sol` xhigh |
 | how explainer | `pstack-how-explainer` | `claude/claude-opus-5-5` max |
 | why investigators | `pstack-why-investigators` | `codex/gpt-6-sol` xhigh |
@@ -69,8 +66,8 @@ Read `$PASEO_HOME/config.json`. `daemon.agentProfiles` is a whole list, and a mi
 ```json
 [
   {
-    "id": "pstack-bug-fix",
-    "name": "pstack · bug-fix · GPT-6-Sol xhigh",
+    "id": "pstack-how-explorer",
+    "name": "pstack · how explorer · GPT-6-Sol xhigh",
     "provider": "codex",
     "model": "gpt-6-sol",
     "thinkingOptionId": "xhigh",
