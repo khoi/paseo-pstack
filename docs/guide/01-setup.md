@@ -21,7 +21,7 @@ Run:
 /setup-pstack
 ```
 
-[`/setup-pstack`](../../skills/setup-pstack/SKILL.md) detects available models and maintains three profiles: `pstack-explorer` for investigation, `pstack-worker` for implementation and design candidates, and `pstack-judge` for explanation, synthesis, and review. Explorer and Worker default to Sol xhigh and retain existing choices on reruns. Judge always uses Astra xhigh.
+[`/setup-pstack`](../../skills/setup-pstack/SKILL.md) detects available models and maintains three profiles: `pstack-explorer` for investigation, `pstack-worker` for implementation and design candidates, and `pstack-judge` for explanation, synthesis, and review. Explorer and Worker default to GPT-6.1 Sol xhigh and retain existing choices on reruns. Judge always uses Astra xhigh.
 
 With no pstack profiles, every role keeps the skill's default. To restore the defaults, delete the `pstack-*` profiles. A rerun of `/setup-pstack` starts from your current profiles.
 

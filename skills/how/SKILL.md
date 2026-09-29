@@ -8,7 +8,7 @@ disable-model-invocation: true
 
 Explore the codebase to answer "how does X work?" questions. Produce architectural explanations at the level of a senior engineer onboarding onto a subsystem, enough to build a working mental model, not so much that it reads like annotated source code.
 
-Read Paseo `list_profiles` before launching. Exploration uses `pstack-explorer`, default `codex/gpt-6-sol` xhigh. Explanation and synthesis use `pstack-judge`, always `codex/gpt-6-astra` with `thinkingOptionId: xhigh`. Copy Explorer's model and effort from its profile when present. Set `settings.modeId` to `full-access` for Codex or `bypassPermissions` for Claude; keep exploration read-only through the prompt. Never substitute another model or effort for Judge. If Astra xhigh is unavailable, report the blocked judgment step. Use `notifyOnFinish: true`.
+Read Paseo `list_profiles` before launching. Exploration uses `pstack-explorer`, default `codex/gpt-6.1-sol` xhigh. Explanation and synthesis use `pstack-judge`, always `codex/gpt-6-astra` with `thinkingOptionId: xhigh`. Copy Explorer's model and effort from its profile when present. Set `settings.modeId` to `full-access` for Codex or `bypassPermissions` for Claude; keep exploration read-only through the prompt. Never substitute another model or effort for Judge. If Astra xhigh is unavailable, report the blocked judgment step. Use `notifyOnFinish: true`.
 
 ## Step 1. Assess Complexity
 
@@ -23,7 +23,7 @@ When in doubt, take the simple path.
 
 Decompose the question into 2 to 4 exploration angles, each a distinct slice of the subsystem. Spawn all explorers in a single message:
 
-- profile: `pstack-explorer`, default `codex/gpt-6-sol` xhigh
+- profile: `pstack-explorer`, default `codex/gpt-6.1-sol` xhigh
 - read-only: say so in the prompt (no edits)
 
 Each explorer gets the prompt in `references/explorer-prompt.md` with its angle filled in. Then go to Step 3.

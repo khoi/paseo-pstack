@@ -92,19 +92,19 @@ YOUR REQUEST
     |   |   +-- Simple question
     |   |   |   +-- [A] 1 explainer (explores and explains) -- GPT-6-Astra xhigh
     |   |   +-- Complex question
-    |   |       +-- [A] 2-4 explorers in parallel -- GPT-6-Sol xhigh
+    |   |       +-- [A] 2-4 explorers in parallel -- GPT-6.1-Sol xhigh
     |   |       +-- Then [A] 1 explainer -- GPT-6-Astra xhigh
     |   |
     |   +-- [S] why
-    |   |   +-- [A] Source-control investigator -- GPT-6-Sol xhigh
-    |   |   +-- [A] Available-source investigators (parallel) -- GPT-6-Sol xhigh
+    |   |   +-- [A] Source-control investigator -- GPT-6.1-Sol xhigh
+    |   |   +-- [A] Available-source investigators (parallel) -- GPT-6.1-Sol xhigh
     |   |   +-- Then [A] 1 synthesizer -- GPT-6-Astra xhigh
     |   |
     |   +-- [S] architect
     |   |   +-- [S] how
     |   |   +-- [S] why (ownership / layering changes)
     |   |   +-- [S] arena
-    |   |   |   +-- [A] Read-only design candidates (Worker profile) -- GPT-6-Sol xhigh
+    |   |   |   +-- [A] Read-only design candidates (Worker profile) -- GPT-6.1-Sol xhigh
     |   |   |   +-- Then [A] 1 cross-judge -- GPT-6-Astra xhigh
     |   |   +-- [S] interrogate (design pressure)
     |   |   +-- [P] exhaust-the-design-space
@@ -115,7 +115,7 @@ YOUR REQUEST
     |   |   +-- [P] subtract-before-you-add
     |   |
     |   +-- [S] arena
-    |   |   +-- [A] N read-only design candidates (default 3) -- GPT-6-Sol xhigh
+    |   |   +-- [A] N read-only design candidates (default 3) -- GPT-6.1-Sol xhigh
     |   |   +-- Then [A] 1 read-only cross-judge -- GPT-6-Astra xhigh
     |   |   +-- Parent selects, combines, and checks the design
     |   |   +-- [P] separate-before-serializing-shared-state
@@ -124,7 +124,7 @@ YOUR REQUEST
     |   |   +-- [P] prove-it-works
     |   |
     |   +-- [S] swarm
-    |   |   +-- [A] N workers in parallel -- GPT-6-Sol xhigh
+    |   |   +-- [A] N workers in parallel -- GPT-6.1-Sol xhigh
     |   |   |   +-- Own worktree unless local access needed
     |   |   +-- Parent aggregates results
     |   |
@@ -137,7 +137,7 @@ YOUR REQUEST
     |   |   +-- [S] how / why / unslop
     |   |
     |   +-- [S] recall
-    |   |   +-- [A] Parallel history readers -- GPT-6-Sol xhigh
+    |   |   +-- [A] Parallel history readers -- GPT-6.1-Sol xhigh
     |   |   |   +-- Skip fan-out for 1-2 chats
     |   |   +-- [S] why (shared-record investigators)
     |   |   +-- [S] unslop
@@ -163,7 +163,7 @@ YOUR REQUEST
     |   |   +-- [P] encode-lessons-in-structure
     |   |
     |   +-- [S] automate-me
-    |   |   +-- [A] Parallel history miners (when mining) -- GPT-6-Sol xhigh
+    |   |   +-- [A] Parallel history miners (when mining) -- GPT-6.1-Sol xhigh
     |   |   +-- Reads poteto-mode as a shape reference
     |   |   +-- External skill authoring if installed
     |   |   +-- [S] unslop
@@ -177,7 +177,7 @@ YOUR REQUEST
     |   |
     |   +-- [S] maintain-verification-skill
     |   |   +-- Reads an existing project verify skill
-    |   |   +-- [A] 1 read-only reader per feature -- GPT-6-Sol xhigh
+    |   |   +-- [A] 1 read-only reader per feature -- GPT-6.1-Sol xhigh
     |   |   +-- Parent drives live verification
     |   |
     |   +-- [S] tdd ------> failing test -> fix -> rerun
@@ -263,7 +263,7 @@ Invoke `setup-pstack` in a Paseo agent:
 /setup-pstack
 ```
 
-It detects available models and writes three Agent profiles: `pstack-explorer` and `pstack-worker` default to Sol xhigh; `pstack-judge` always uses Astra xhigh. Explorer and Worker model settings are configurable. Each review launches one Judge; candidate counts are independent of profile count.
+It detects available models and writes three Agent profiles: `pstack-explorer` and `pstack-worker` default to GPT-6.1 Sol xhigh; `pstack-judge` always uses Astra xhigh. Explorer and Worker model settings are configurable. Each review launches one Judge; candidate counts are independent of profile count.
 
 Edit profiles under **Settings → your host → Agent profiles**, or rerun setup. Keep the three profile IDs unchanged because skills look them up by ID. Judge model and effort remain fixed. Without profiles, skills use their documented defaults. See [setup-pstack](./skills/setup-pstack/SKILL.md) for the role IDs and defaults.
 

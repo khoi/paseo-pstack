@@ -27,7 +27,7 @@ The N candidates will receive the same prompt, so the prompt is the contract.
 
 1. State the design proposal each candidate is producing.
 2. Derive the rubric. State what success looks like for *this* task, then turn it into 3-6 concrete gradeable criteria. The rubric is the picker's tool in Phase D. Candidates only see the task.
-3. Pick the runners. Read `list_profiles` and use `pstack-worker`, default `codex/gpt-6-sol` xhigh. Launch three candidates by default, or the count requested by the user, with distinct design approaches and read-only responses. Candidate count is independent of profile count. Copy the worker profile's model, effort, and features; set `settings.modeId` to `full-access` for Codex or `bypassPermissions` for Claude. Explicit model-comparison tasks may name a model per candidate.
+3. Pick the runners. Read `list_profiles` and use `pstack-worker`, default `codex/gpt-6.1-sol` xhigh. Launch three candidates by default, or the count requested by the user, with distinct design approaches and read-only responses. Candidate count is independent of profile count. Copy the worker profile's model, effort, and features; set `settings.modeId` to `full-access` for Codex or `bypassPermissions` for Claude. Explicit model-comparison tasks may name a model per candidate.
 4. Assign candidate labels. Candidates share read-only access to the relevant source and return their proposals in their responses. No candidate worktrees or output files.
 
 ## Phase B: Fan out

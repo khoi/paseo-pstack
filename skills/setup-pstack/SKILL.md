@@ -10,8 +10,8 @@ Maintain exactly three pstack Agent profiles in `daemon.agentProfiles` in `$PASE
 
 | Role | Profile ID | Model and effort | Used for |
 |---|---|---|---|
-| Explorer | `pstack-explorer` | `codex/gpt-6-sol` xhigh by default | Read-only code, history, and source investigation |
-| Worker | `pstack-worker` | `codex/gpt-6-sol` xhigh by default | Delegated implementation and competing design candidates |
+| Explorer | `pstack-explorer` | `codex/gpt-6.1-sol` xhigh by default | Read-only code, history, and source investigation |
+| Worker | `pstack-worker` | `codex/gpt-6.1-sol` xhigh by default | Delegated implementation and competing design candidates |
 | Judge | `pstack-judge` | Always `codex/gpt-6-astra` xhigh | Explanation, synthesis, adversarial review, and candidate evaluation |
 
 One Judge runs per review. Arena launches three Worker candidates by default; candidate count is a task choice, independent of the number of profiles. Implementation otherwise stays in the main agent.

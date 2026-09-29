@@ -10,7 +10,7 @@ Investigate the motivation and intent behind code.
 
 Companion to the `how` skill. `how` answers what the code does and how it works. `why` answers what forces led to its shape.
 
-Read Paseo `list_profiles` before launching. Exploration uses `pstack-explorer`, default `codex/gpt-6-sol` xhigh. Explanation and synthesis use `pstack-judge`, always `codex/gpt-6-astra` with `thinkingOptionId: xhigh`. Copy Explorer's model and effort from its profile when present. Set `settings.modeId` to `full-access` for Codex or `bypassPermissions` for Claude; keep exploration read-only through the prompt. Never substitute another model or effort for Judge. If Astra xhigh is unavailable, report the blocked judgment step. Use `notifyOnFinish: true`.
+Read Paseo `list_profiles` before launching. Exploration uses `pstack-explorer`, default `codex/gpt-6.1-sol` xhigh. Explanation and synthesis use `pstack-judge`, always `codex/gpt-6-astra` with `thinkingOptionId: xhigh`. Copy Explorer's model and effort from its profile when present. Set `settings.modeId` to `full-access` for Codex or `bypassPermissions` for Claude; keep exploration read-only through the prompt. Never substitute another model or effort for Judge. If Astra xhigh is unavailable, report the blocked judgment step. Use `notifyOnFinish: true`.
 
 ## Operating Posture
 
@@ -80,7 +80,7 @@ Aim for a complete **coverage map**, not a minimal one. Document the null, don't
 Launch all matching investigators in a single message so they run concurrently. Don't ask one agent to cover multiple MCPs.
 
 Subagent config (each):
-- profile: `pstack-explorer`, default `codex/gpt-6-sol` xhigh
+- profile: `pstack-explorer`, default `codex/gpt-6.1-sol` xhigh
 - mode: the profile's mode. **Do not use a read-only or plan mode.** It strips MCP access, which disables MCP-backed investigators entirely. Investigators still shouldn't write anything.
 
 Each investigator gets:
