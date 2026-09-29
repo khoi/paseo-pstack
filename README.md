@@ -9,7 +9,7 @@ Engineering workflows for Paseo, organized into six playbooks, reusable skills, 
 - `[B]` Playbook.
 - `[S]` Skill.
 - `[P]` Principle, with the `principle-` prefix omitted.
-- `[A]` Separate subagent launch.
+- `[A]` Separate subagent launch, followed by its default model and reasoning effort.
 
 Conditions in parentheses determine when a route applies. Reading a skill or principle does not itself launch an agent. Explorer and Worker counts follow task scope. Each review uses one Astra xhigh Judge.
 
@@ -96,22 +96,22 @@ YOUR REQUEST
     |   |
     |   +-- [S] how
     |   |   +-- Simple question
-    |   |   |   +-- [A] 1 explainer (explores and explains)
+    |   |   |   +-- [A] 1 explainer (explores and explains) -- GPT-6-Astra xhigh
     |   |   +-- Complex question
-    |   |       +-- [A] 2-4 explorers in parallel
-    |   |       +-- Then [A] 1 explainer
+    |   |       +-- [A] 2-4 explorers in parallel -- GPT-6-Sol xhigh
+    |   |       +-- Then [A] 1 explainer -- GPT-6-Astra xhigh
     |   |
     |   +-- [S] why
-    |   |   +-- [A] Source-control investigator
-    |   |   +-- [A] Available-source investigators (parallel)
-    |   |   +-- Then [A] 1 synthesizer
+    |   |   +-- [A] Source-control investigator -- GPT-6-Sol xhigh
+    |   |   +-- [A] Available-source investigators (parallel) -- GPT-6-Sol xhigh
+    |   |   +-- Then [A] 1 synthesizer -- GPT-6-Astra xhigh
     |   |
     |   +-- [S] architect
     |   |   +-- [S] how
     |   |   +-- [S] why (ownership / layering changes)
     |   |   +-- [S] arena
-    |   |   |   +-- [A] Read-only design candidates (Worker profile)
-    |   |   |   +-- Then [A] 1 cross-judge
+    |   |   |   +-- [A] Read-only design candidates (Worker profile) -- GPT-6-Sol xhigh
+    |   |   |   +-- Then [A] 1 cross-judge -- GPT-6-Astra xhigh
     |   |   +-- [S] interrogate (design pressure)
     |   |   +-- [P] exhaust-the-design-space
     |   |   +-- [P] foundational-thinking
@@ -121,8 +121,8 @@ YOUR REQUEST
     |   |   +-- [P] subtract-before-you-add
     |   |
     |   +-- [S] arena
-    |   |   +-- [A] N read-only design candidates (default 3)
-    |   |   +-- Then [A] 1 read-only cross-judge
+    |   |   +-- [A] N read-only design candidates (default 3) -- GPT-6-Sol xhigh
+    |   |   +-- Then [A] 1 read-only cross-judge -- GPT-6-Astra xhigh
     |   |   +-- Parent selects, combines, and checks the design
     |   |   +-- [P] separate-before-serializing-shared-state
     |   |   +-- [P] laziness-protocol
@@ -130,12 +130,12 @@ YOUR REQUEST
     |   |   +-- [P] prove-it-works
     |   |
     |   +-- [S] swarm
-    |   |   +-- [A] N workers in parallel
+    |   |   +-- [A] N workers in parallel -- GPT-6-Sol xhigh
     |   |   |   +-- Own worktree unless local access needed
     |   |   +-- Parent aggregates results
     |   |
     |   +-- [S] interrogate
-    |   |   +-- [A] 1 Judge (Astra xhigh)
+    |   |   +-- [A] 1 Judge -- GPT-6-Astra xhigh
     |   |   |   +-- Intent, rubric, and code-quality lens
     |   |   +-- Parent judges and synthesizes findings
     |   |
@@ -143,7 +143,7 @@ YOUR REQUEST
     |   |   +-- [S] how / why / unslop
     |   |
     |   +-- [S] recall
-    |   |   +-- [A] Parallel history readers
+    |   |   +-- [A] Parallel history readers -- GPT-6-Sol xhigh
     |   |   |   +-- Skip fan-out for 1-2 chats
     |   |   +-- [S] why (shared-record investigators)
     |   |   +-- [S] unslop
@@ -165,11 +165,11 @@ YOUR REQUEST
     |   |
     |   +-- [S] show-me-your-work
     |   |   +-- [S] unslop
-    |   |   +-- [A] 1 trail Judge (Astra xhigh)
+    |   |   +-- [A] 1 trail Judge -- GPT-6-Astra xhigh
     |   |   +-- [P] encode-lessons-in-structure
     |   |
     |   +-- [S] automate-me
-    |   |   +-- [A] Parallel history miners (when mining)
+    |   |   +-- [A] Parallel history miners (when mining) -- GPT-6-Sol xhigh
     |   |   +-- Reads poteto-mode as a shape reference
     |   |   +-- External skill authoring if installed
     |   |   +-- [S] unslop
@@ -184,7 +184,7 @@ YOUR REQUEST
     |   |
     |   +-- [S] maintain-verification-skill
     |   |   +-- Reads an existing project verify skill
-    |   |   +-- [A] 1 read-only reader per feature
+    |   |   +-- [A] 1 read-only reader per feature -- GPT-6-Sol xhigh
     |   |   +-- Parent drives live verification
     |   |
     |   +-- [S] tdd ------> failing test -> fix -> rerun
