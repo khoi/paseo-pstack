@@ -2,7 +2,7 @@
 
 ## Routing
 
-Engineering workflows for Paseo, organized into six playbooks, reusable skills, and 23 principles.
+Engineering workflows for Paseo, organized into five playbooks, reusable skills, and 23 principles.
 
 `poteto-mode` selects a playbook and invokes skills through its steps and shared rules. Skills can invoke other skills and reference principles. You can also invoke skills directly.
 
@@ -63,12 +63,6 @@ YOUR REQUEST
     |   |   +-- [P] minimize-reader-load
     |   |   +-- [P] sequence-verifiable-units
     |   |   +-- [B] opening-a-pr
-    |   |
-    |   +-- [B] prototype
-    |   |   +-- Build alternatives -> observe -> choose
-    |   |   +-- [P] exhaust-the-design-space
-    |   |   +-- Real implementation?
-    |   |       +-- [B] feature / [S] architect
     |   |
     |   +-- [B] opening-a-pr
     |       +-- [S] deslop (external, if installed)
@@ -306,7 +300,6 @@ The [guide](./docs/guide/README.md) walks through setup, investigation, design, 
 | [bug-fix](./skills/poteto-mode/playbooks/bug-fix.md) | Reproduce a defect, fix its cause, and verify. |
 | [feature](./skills/poteto-mode/playbooks/feature.md) | Design, implement, and verify new behavior. |
 | [refactoring](./skills/poteto-mode/playbooks/refactoring.md) | Change structure while proving behavior is preserved. |
-| [prototype](./skills/poteto-mode/playbooks/prototype.md) | Compare throwaway implementations to settle a decision. |
 | [opening-a-pr](./skills/poteto-mode/playbooks/opening-a-pr.md) | Prepare ordered commits and a focused PR. |
 
 ## Skills
@@ -382,6 +375,6 @@ Delete unwanted `pstack-*` profiles under **Settings → your host → Agent pro
 
 ## Credits and license
 
-Adapted from pstack by [poteto](https://x.com/poteto) (Lauren Tan) to run on [Paseo](https://paseo.sh). This fork retains six playbooks and 23 principles.
+Adapted from pstack by [poteto](https://x.com/poteto) (Lauren Tan) to run on [Paseo](https://paseo.sh). This fork retains five playbooks and 23 principles.
 
 [MIT](./LICENSE).
