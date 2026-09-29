@@ -170,7 +170,6 @@ YOUR REQUEST
     |   |
     |   +-- [S] setup-pstack
     |   |   +-- Writes Explorer, Worker, and Judge profiles
-    |   |   +-- Offers create-verification-skill
     |   |
     |   +-- [S] create-verification-skill
     |   |   +-- Generates and proves a project skill

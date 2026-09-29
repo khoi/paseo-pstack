@@ -86,7 +86,7 @@ Read the leaf skill in full for any principle you apply. Each entry names when i
 
 **Defaults for every `create_agent` call.** Use `notifyOnFinish: true`, file pointers instead of inlined context, and one of three profiles from `list_profiles`: `pstack-explorer` for read-only investigation, `pstack-worker` for implementation or design candidates, and `pstack-judge` for explanation, synthesis, and review. Explorer and Worker default to `codex/gpt-6-sol` xhigh. Judge always uses `codex/gpt-6-astra` xhigh, even if its stored profile differs; if unavailable, report the blocked judgment step without substituting another model or effort. Set `settings.modeId` explicitly to `full-access` for Codex or `bypassPermissions` for Claude. Read-only duties belong in the prompt. Use one Judge per review, not a panel. Candidate and explorer counts come from task scope, not profile count. Implementation stays in the main agent unless delegation is explicitly requested.
 
-You own every subagent's work. Review the diff and write your own summary, don't pass through what it said. Interrupt-chained resumes silently drop directives, so fire a fresh `poteto-agent` with consolidated scope rather than trusting a "done" summary. A second opinion is the same prompt against a different model. Agreement is high-signal.
+You own every subagent's work. Review the diff and write your own summary, don't pass through what it said. Interrupt-chained resumes silently drop directives, so fire a fresh `poteto-agent` with consolidated scope rather than trusting a "done" summary. For a second opinion, give the same brief to one independent Judge on Astra xhigh. Assess its reasoning against the evidence.
 
 ## Writing the reply
 
