@@ -75,7 +75,7 @@ That's the whole prompt. [`/bro`](../../skills/bro/SKILL.md) restates the last m
 - **Enumerating skills in the prompt.** "use /how then /architect then /arena" reorders steps the playbook already sequences. State the goal and constraints. Name a skill only to override a default.
 - **A vague finish condition.** "make it better" gives the agent nothing to check. Give a command or artifact that can pass or fail.
 - **Parallel agents in one worktree.** They overwrite each other and the diff becomes archaeology. Say "own worktree per attempt" and the isolation is free.
-- **Using `/arena` for coverage.** `/arena` repeats one design or code brief, then picks a base and grafts the best parts. `/swarm` partitions slices or declared race arms and aggregates one report.
+- **Using `/arena` for coverage.** `/arena` repeats one read-only design brief, then picks a base and grafts the best parts. `/swarm` partitions slices or declared race arms and aggregates one report.
 - **Accepting every review comment.** Bots and humans both file real catches and noise in one list. `/interrogate` sorts findings into act-on and dismissed buckets with reasons, and you can override either way.
 - **Renaming a pstack profile's id.** pstack finds its profiles by `id` (`pstack-explorer`, `pstack-worker`, `pstack-judge`). Change Explorer or Worker settings, never their IDs; Judge stays Astra xhigh. [Setup](./01-setup.md) covers the roles.
 - **Reporting success off a green build.** A build proves it compiles. Ask for the real command, flow, stored value, or profile, and expect the evidence in the reply.

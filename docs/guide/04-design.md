@@ -1,6 +1,6 @@
 # Design before you write code
 
-One attempt at a hard design locks in the first shape the model thought of. `/architect` settles types and boundaries before implementation. `/arena` runs several attempts at the same brief and merges the best parts. `/interrogate` has one Astra xhigh Judge try to break the result. When the job is coverage rather than design synthesis, `/swarm` fans out slices or races and aggregates their results.
+One attempt at a hard design locks in the first shape the model thought of. `/architect` settles types and boundaries before implementation. `/arena` gathers read-only design proposals for the same brief and merges the best ideas. `/interrogate` has one Astra xhigh Judge try to break the result. When the job is coverage rather than design synthesis, `/swarm` fans out slices or races and aggregates their results.
 
 ![Three robots draft competing bridge models at their own tables as design candidates, while a judge robot with a clipboard inspects skeptically.](./images/design.jpg)
 
@@ -12,7 +12,7 @@ One attempt at a hard design locks in the first shape the model thought of. `/ar
 
 [`/architect`](../../skills/architect/SKILL.md) grounds itself first, running `/how` over the code the design touches and `/why` when it moves ownership or layers. Then it runs `/arena` to produce competing design sketches, with the caller's usage written first in each, followed by types, signatures, and a module map.
 
-By default it proceeds straight from the synthesized design into implementation. If you want to see the design first, say so:
+When implementation is in scope, the parent proceeds straight from the synthesized design into implementation. For design-only requests, it returns the design and stops. If you want to see the design first, say so:
 
 ```text
 /architect with checkpoint. stop and show me before implementing.
@@ -24,7 +24,7 @@ By default it proceeds straight from the synthesized design into implementation.
 /arena take my prompt to the arena verbatim. i want to compare their proposals with yours.
 ```
 
-[`/arena`](../../skills/arena/SKILL.md) is the general tool underneath. N subagents attempt the same design or code brief in parallel, each writing to its own worktree or directory. A read-only judge, always on Astra xhigh, scores every candidate against a rubric. The coordinator reads each candidate end to end, picks a base, grafts in the best ideas from the losers, and verifies the result.
+[`/arena`](../../skills/arena/SKILL.md) is the general tool underneath. N read-only subagents inspect the same design brief in parallel and return proposals with code sketches as text. They do not edit files or implement changes. A read-only judge, always on Astra xhigh, scores every candidate against a rubric. The coordinator reads each candidate end to end, picks a base, grafts in the best ideas from the losers, and checks the design against the source and constraints. The parent owns any later implementation.
 
 ```mermaid
 flowchart LR
@@ -54,7 +54,7 @@ Candidates use the Worker profile from [`/setup-pstack`](../../skills/setup-psta
 
 [`/swarm`](../../skills/swarm/SKILL.md) fans N workers across independent slices, coverage matrices, gauntlet lanes, exploration partitions, or declared race arms. Each worker gets its own scope and check, then reports `PASS`, `ISSUES`, or `BLOCKED`. The parent waits for the workers and returns one compact report with any gaps or dropouts.
 
-Reach for it when parallelism buys coverage or lets independent checks race. `/arena` gives every worker the same design or code brief, then picks a base and grafts the best parts. `/swarm` covers slices or runs a race with a selection rule declared up front. It does not use the base-selection and grafting ceremony.
+Reach for it when parallelism buys coverage or lets independent checks race. `/arena` gives every worker the same design brief, then picks a base and grafts the best parts. `/swarm` covers slices or runs a race with a selection rule declared up front. It does not use the base-selection and grafting ceremony.
 
 ## Break it with `/interrogate`
 

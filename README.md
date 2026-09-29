@@ -81,7 +81,7 @@ YOUR REQUEST
     |   +-- Understand a nontrivial change -> how
     |   +-- Design across functions ------> architect
     |   +-- Parallel work ----------------> swarm
-    |   +-- Competing implementations ----> arena
+    |   +-- Competing designs -----------> arena
     |   +-- Contested design -------------> interrogate
     |   +-- Prose ------------------------> unslop
     |   +-- Docs / PR / commit prose ------> technical-writing
@@ -110,7 +110,7 @@ YOUR REQUEST
     |   |   +-- [S] how
     |   |   +-- [S] why (ownership / layering changes)
     |   |   +-- [S] arena
-    |   |   |   +-- [A] Design candidates (Worker profile)
+    |   |   |   +-- [A] Read-only design candidates (Worker profile)
     |   |   |   +-- Then [A] 1 cross-judge
     |   |   +-- [S] interrogate (design pressure)
     |   |   +-- [P] exhaust-the-design-space
@@ -121,9 +121,9 @@ YOUR REQUEST
     |   |   +-- [P] subtract-before-you-add
     |   |
     |   +-- [S] arena
-    |   |   +-- [A] N candidates in parallel (default 3)
+    |   |   +-- [A] N read-only design candidates (default 3)
     |   |   +-- Then [A] 1 read-only cross-judge
-    |   |   +-- Parent selects, combines, and verifies
+    |   |   +-- Parent selects, combines, and checks the design
     |   |   +-- [P] separate-before-serializing-shared-state
     |   |   +-- [P] laziness-protocol
     |   |   +-- [P] redesign-from-first-principles
@@ -321,7 +321,7 @@ Principles guide decisions, skills provide reusable procedures, and playbooks se
 | [teach](./skills/teach/SKILL.md) | Combine how and why into a plain explanation. |
 | [recall](./skills/recall/SKILL.md) | Reconstruct recent work from history and current evidence. |
 | [architect](./skills/architect/SKILL.md) | Compare interfaces and module designs before implementation. |
-| [arena](./skills/arena/SKILL.md) | Compare competing attempts and synthesize the strongest result. |
+| [arena](./skills/arena/SKILL.md) | Compare read-only design proposals and synthesize the strongest result. |
 | [swarm](./skills/swarm/SKILL.md) | Distribute work across parallel workers and aggregate results. |
 | [interrogate](./skills/interrogate/SKILL.md) | Review a change with one independent Astra xhigh Judge. |
 | [tdd](./skills/tdd/SKILL.md) | Prove a regression test fails before the fix and passes after. |

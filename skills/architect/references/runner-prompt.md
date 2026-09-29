@@ -1,8 +1,8 @@
 # Architect runner prompt
 
-The orchestrator passes this file through to every parallel candidate runner during Phase B and fills in the variable inputs around it: the task, the Phase A grounding artifacts, the isolated working directory, and the path to write outputs. The working directory is a git worktree when available, otherwise a per-runner subdirectory under the sketch dir. What matters is independence between candidates.
+The orchestrator passes this file through to every parallel candidate runner during Phase B and fills in the variable inputs around it: the task, the Phase A grounding artifacts, the source directory to inspect, and the candidate label. What matters is independence between proposals.
 
-You are producing one candidate design in architect's parallel exploration. Read the **architect** skill in full first. That's the workflow you're inside. Output a candidate design package: type sketch, function signatures, module map, and prose rationale shaped per [`rationale-template.md`](rationale-template.md).
+You are producing one candidate design in architect's parallel exploration. Read the **architect** skill in full first for context, but perform only Phase B as a candidate. Do not launch its workflow, spawn agents, edit files, run mutating commands, implement, commit, or open PRs. Return the proposal in your response, with sketches as text: type sketch, function signatures, module map, and prose rationale shaped per [`rationale-template.md`](rationale-template.md).
 
 Apply the following discipline. The orchestrator compares candidates on these axes to pick a base.
 
