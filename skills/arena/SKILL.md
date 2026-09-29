@@ -1,12 +1,14 @@
 ---
 name: arena
-description: "Spawn N parallel candidates at the same task, pick a base, graft the strongest parts of the losers into it. Use for /arena, 'arena this', 'throw it in the arena', or when one attempt at a non-trivial artifact would lock in the wrong shape."
+description: "Spawn N parallel read-only design candidates at the same task, pick a base, graft the strongest parts of the losers into it. Use for /arena, 'arena this', 'throw it in the arena', or when one attempt at a non-trivial design would lock in the wrong shape."
 disable-model-invocation: true
 ---
 
 # Arena
 
-Fan out N parallel attempts at the same task. Read every candidate end to end. Pick the strongest as the base. Graft the best ideas from the others into it. Verify the synthesized result.
+Fan out N parallel read-only design proposals for the same task. Read every candidate end to end. Pick the strongest as the base. Graft the best ideas from the others into it. Verify the synthesized result.
+
+Candidates and the judge may inspect code and evidence, but must not edit files, run mutating commands, implement changes, commit, open PRs, or spawn agents. Return proposals in the response, including code sketches as text. The parent owns synthesis and any later implementation. These are task constraints, regardless of the launch permission mode.
 
 ## Start
 
@@ -23,14 +25,14 @@ Open a todolist with one entry per phase before launching anything.
 
 The N candidates will receive the same prompt, so the prompt is the contract.
 
-1. State the artifact each candidate is producing.
+1. State the design proposal each candidate is producing.
 2. Derive the rubric. State what success looks like for *this* task, then turn it into 3-6 concrete gradeable criteria. The rubric is the picker's tool in Phase D. Candidates only see the task.
 3. Pick the runners. Use every pstack Agent profile whose `id` starts with `pstack-arena-runners` (read them with `list_profiles`), one runner per profile. If there are none, run one seat each on `claude/claude-opus-5-5` max, `codex/gpt-6-astra` max, and `codex/gpt-6-sol` xhigh. Copy each profile's `provider/model`, `thinkingOptionId`, `modeId`, and `featureValues` into `create_agent`. If `create_agent` rejects a configured entry, run that seat on its provider's default and say so: `claude/claude-opus-5-5` max for `claude`, `codex/gpt-6-astra` max for `codex`. With no provider match, use `claude/claude-opus-5-5` max. If it rejects a default, use the closest valid model of the same provider from `list_models`. Spawn more when the arena covers multiple design directions. Same model N times when the work is generation-bound rather than judgment-sensitive.
-4. Assign output paths. Each candidate writes to its own location (a git worktree where possible, otherwise `/tmp/arena-<slug>/candidate-<n>/`), per the **separate-before-serializing-shared-state** principle skill.
+4. Assign candidate labels. Candidates share read-only access to the relevant source and return their proposals in their responses. No candidate worktrees or output files.
 
 ## Phase B: Fan out
 
-Spawn all N Paseo subagents in one message with `create_agent` and `notifyOnFinish: true` (the default, so don't poll), each with the task, the path to the shared grounding, its own output path, and instructions to produce both the artifact and a short rationale.
+Spawn all N Paseo subagents in one message with `create_agent` and `notifyOnFinish: true` (the default, so don't poll), each with the task, the path to the shared grounding, its candidate label, the read-only constraints above, and instructions to return both the design proposal and a short rationale.
 
 Each rationale names the alternatives the candidate considered and what it rejected.
 
@@ -38,7 +40,7 @@ If a candidate fails to produce output, proceed with N-1 and note the dropout in
 
 ## Phase C: Cross-judge
 
-After all Phase B candidates complete, choose one profile from the pstack Agent profiles whose `id` starts with `pstack-arena-cross-judge`. If there are none, choose from `claude/claude-opus-5-5` max, `codex/gpt-6-astra` max, and `codex/gpt-6-sol` xhigh. Prefer a different provider from the parent's. Spawn one read-only judge subagent on that model, and say it is read-only in its prompt. It sees the rubric and the candidates by path label, scores each criterion, and recommends a base with rationale. It runs in parallel with the parent's reading in Phase D, not with the candidates themselves. Don't spawn the judge while candidates are still writing.
+After all Phase B candidates complete, choose one profile from the pstack Agent profiles whose `id` starts with `pstack-arena-cross-judge`. If there are none, choose from `claude/claude-opus-5-5` max, `codex/gpt-6-astra` max, and `codex/gpt-6-sol` xhigh. Prefer a different provider from the parent's. Spawn one read-only judge subagent on that model, and include the read-only constraints above in its prompt. It sees the rubric and the complete candidate responses by label, scores each criterion, and recommends a base with rationale. It runs in parallel with the parent's reading in Phase D, not with the candidates themselves. Don't spawn the judge before the candidate responses are complete.
 
 ## Phase D: Pick a base
 
@@ -48,24 +50,24 @@ Score each candidate against the rubric criterion by criterion, not on holistic 
 
 Pick the base on which candidate a future maintainer can extend most easily without breaking invariants. Prefer the cleaner boundary or smaller API when two feel tied, per the Laziness Protocol.
 
-Record the pick and the reason in a short synthesis note alongside the base artifact, including the cross-judge's verdict.
+Record the pick and the reason in a short synthesis note alongside the base proposal, including the cross-judge's verdict.
 
 ## Phase E: Graft
 
 Walk each losing candidate once more and identify what is worth porting into the base. The signal is usually one or two things per candidate, not most of it.
 
-Fold each graft in by hand, per the **redesign-from-first-principles** principle skill. Don't paste mechanically. The result has to remain coherent under one mental model.
+Fold each design idea into the proposal, per the **redesign-from-first-principles** principle skill. Don't paste mechanically. The result has to remain coherent under one mental model.
 
 Record what was grafted, from which candidate, and what was rejected and why.
 
-When N candidates converge on the same shape, that is a strong agreement signal. Note the convergence in the record and ship the consensus shape. No graft is needed. When N candidates wildly diverge, Phase A was under-specified. Reframe and re-run rather than averaging the divergence.
+When N candidates converge on the same shape, that is a strong agreement signal. Note the convergence in the record and return the consensus shape. No graft is needed. When N candidates wildly diverge, Phase A was under-specified. Reframe and re-run rather than averaging the divergence.
 
 ## Phase F: Verify
 
-The synthesized artifact has to hold up under the same scrutiny as any other output, per the **prove-it-works** principle skill.
+Check the synthesized design against the source, constraints, and caller examples, per the **prove-it-works** principle skill. Distinguish facts verified by inspection from assumptions that need implementation or runtime proof. Design review is not proof that an implementation works.
 
 If verification surfaces a problem the arena did not catch, either Phase A was wrong (re-frame and re-run) or one candidate caught it and you missed the graft (go back to Phase E). Don't paper over.
 
 ## Outputs
 
-One synthesized artifact. One short synthesis note alongside, naming the base, the grafts (with source candidate), the rejections, the dropouts if any, and the verification result.
+One synthesized design proposal returned to the caller, not an implementation. One short synthesis note alongside, naming the base, the grafts (with source candidate), the rejections, the dropouts if any, and the verification result.
